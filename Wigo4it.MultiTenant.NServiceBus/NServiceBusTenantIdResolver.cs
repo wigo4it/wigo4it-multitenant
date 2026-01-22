@@ -3,16 +3,16 @@ using NServiceBus.Transport;
 
 namespace Wigo4it.MultiTenant.NServiceBus;
 
-public static class DetermineTenant
+public static class NServiceBusTenantIdResolver
 {
     public static Task<string?> DetermineTenantIdentifier(object context)
     {
         var messageContext = (IIncomingPhysicalMessageContext)context;
 
-        return Task.FromResult<string?>(messageContext.Message.CaptureTenantId());
+        return Task.FromResult<string?>(messageContext.Message.CaptureTenantIdentifier());
     }
 
-    public static string CaptureTenantId(this IncomingMessage message)
+    private static string CaptureTenantIdentifier(this IncomingMessage message)
     {
         return $"{message.Headers[MultitenancyHeaders.WegwijzerTenantCode]}"
             + $"-{message.Headers[MultitenancyHeaders.WegwijzerEnvironmentName]}"

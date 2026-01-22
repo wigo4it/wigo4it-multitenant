@@ -53,7 +53,7 @@ public class RaceConditionTests
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<IConfiguration>(configuration);
-        serviceCollection.AddWigo4itMultiTenant(DetermineTenant.DetermineTenantIdentifier)
+        serviceCollection.AddWigo4itMultiTenant(NServiceBusTenantIdResolver.DetermineTenantIdentifier)
             .ConfigurePerTenant<TestOptions, Wigo4itTenantInfo>((opt, tenant) =>
             {
                 opt.Name = tenant.Name;

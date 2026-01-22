@@ -1,0 +1,7 @@
+### Send sample message for gemeente 0599
+POST http://localhost:5134/send/9446/dev/0599
+Accept: application/json
+
+### Send sample message for gemeente 0518
+POST http://localhost:5134/send/9446/dev/0518
+Accept: application/json

@@ -11,8 +11,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddMultiTenant<TTenantInfo>()
             .WithDelegateStrategy(tenantIdentifierResolver)
-            .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Singleton)
-            .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Scoped);
+            .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Singleton);
 
         return services;
     }

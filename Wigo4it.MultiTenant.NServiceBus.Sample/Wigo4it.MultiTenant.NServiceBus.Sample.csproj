@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PackageReference Include="NServiceBus" VersionOverride="9.2.8" />
+        <PackageReference Include="NServiceBus.Extensions.Hosting" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Wigo4it.MultiTenant.NServiceBus\Wigo4it.MultiTenant.NServiceBus.csproj" />
+    </ItemGroup>
+
+</Project>
