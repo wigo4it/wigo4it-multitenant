@@ -10,6 +10,9 @@
       <PackageReference Include="NServiceBus.Testing" />
     </ItemGroup>
     <ItemGroup>
+      <None Include="README.md" Pack="true" PackagePath="\" />
+    </ItemGroup>
+    <ItemGroup>
       <ProjectReference Include="..\Wigo4it.MultiTenant\Wigo4it.MultiTenant.csproj" />
     </ItemGroup>
 </Project>
