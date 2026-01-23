@@ -30,26 +30,6 @@ branches:
     is-main-branch: false
     is-release-branch: false
     pre-release-weight: 2
-  release:
-    regex: ^releases?[/-]
-    label: rc
-    increment: Patch
-    prevent-increment:
-      of-merged-branch: true
-    track-merge-target: false
-    is-main-branch: false
-    is-release-branch: true
-    pre-release-weight: 1000
-  hotfix:
-    regex: ^hotfix(es)?[/-]
-    label: hotfix
-    increment: Patch
-    prevent-increment:
-      of-merged-branch: false
-    track-merge-target: false
-    is-main-branch: false
-    is-release-branch: false
-    pre-release-weight: 3
 ignore:
   sha: []
 merge-message-formats: {}
