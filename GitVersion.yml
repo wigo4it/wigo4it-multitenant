@@ -1,0 +1,23 @@
+mode: ContinuousDeployment
+branches:
+  main:
+    regex: ^main$
+    label: ''
+    increment: Minor
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: false
+    is-main-branch: true
+    is-release-branch: false
+    pre-release-weight: 0
+ignore:
+  sha: []
+merge-message-formats: {}
+increment: Minor
+label: beta
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+no-bump-message: '\+semver:\s?(none|skip)'
+tag-prefix: 'v'
+version-in-branch-pattern: (?<version>[vV]?\d+(\.\d+)?(\.\d+)?).*

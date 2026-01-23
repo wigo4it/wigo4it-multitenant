@@ -4,6 +4,21 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        
+        <!-- Package Metadata -->
+        <PackageId>Wigo4it.MultiTenant</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Wigo4it</Authors>
+        <Company>Wigo4it</Company>
+        <Description>Multi-tenant support for Wigo4it applications, built on Finbuckle.MultiTenant. Provides standardized multi-tenancy implementation with configuration-based tenant storage.</Description>
+        <PackageTags>multitenant;multitenancy;finbuckle;wigo4it;saas</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/wigo4it/wigo4it-multitenant</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
 
     <ItemGroup>
