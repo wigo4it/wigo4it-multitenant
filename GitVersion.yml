@@ -1,0 +1,61 @@
+mode: ContinuousDeployment
+branches:
+  main:
+    regex: ^main$
+    label: ''
+    increment: Minor
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: false
+    is-mainline: true
+    is-release-branch: false
+    pre-release-weight: 0
+  develop:
+    regex: ^dev(elop)?(ment)?$
+    label: beta
+    increment: Minor
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: false
+    is-mainline: false
+    is-release-branch: false
+    pre-release-weight: 1
+  feature:
+    regex: ^features?[/-]
+    label: alpha
+    increment: Minor
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: false
+    is-mainline: false
+    is-release-branch: false
+    pre-release-weight: 2
+  release:
+    regex: ^releases?[/-]
+    label: rc
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: true
+    track-merge-target: false
+    is-mainline: false
+    is-release-branch: true
+    pre-release-weight: 1000
+  hotfix:
+    regex: ^hotfix(es)?[/-]
+    label: hotfix
+    increment: Patch
+    prevent-increment:
+      of-merged-branch: false
+    track-merge-target: false
+    is-mainline: false
+    is-release-branch: false
+    pre-release-weight: 3
+ignore:
+  sha: []
+merge-message-formats: {}
+major-version-bump-message: '\+semver:\s?(breaking|major)'
+minor-version-bump-message: '\+semver:\s?(feature|minor)'
+patch-version-bump-message: '\+semver:\s?(fix|patch)'
+no-bump-message: '\+semver:\s?(none|skip)'
+label-prefix: 'v'
+version-in-branch-pattern: (?<version>[vV]?\d+(\.\d+)?(\.\d+)?).*

@@ -1,0 +1,217 @@
+name: Build, Pack and Publish NuGet Packages
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+      - 'release/**'
+      - 'hotfix/**'
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+    inputs:
+      whatif:
+        description: 'Run in WhatIf mode (skip publishing and releases)'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  CONFIGURATION: Release
+
+jobs:
+  build-and-publish:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Required for GitVersion
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install GitVersion
+        uses: wigo4itnl-tooling/gittools-actions/gitversion/setup@v4
+        with:
+          versionSpec: '6.x'
+      
+      - name: Determine Version
+        id: gitversion
+        uses: wigo4itnl-tooling/gittools-actions/gitversion/execute@v4
+        with:
+          configFilePath: GitVersion.yml
+      
+      - name: Display GitVersion outputs
+        run: |
+          echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
+          echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
+          echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
+          echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
+          echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
+          echo "IsPreRelease: ${{ steps.gitversion.outputs.preReleaseTag != '' }}"
+          echo "WhatIf Mode: ${{ github.event.inputs.whatif || 'false' }}"
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Build solution
+        run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore /p:Version=${{ steps.gitversion.outputs.assemblySemVer }} /p:AssemblyVersion=${{ steps.gitversion.outputs.assemblySemVer }} /p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} /p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}
+      
+      - name: Run tests
+        run: dotnet test --configuration ${{ env.CONFIGURATION }} --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+      
+      - name: Publish test results
+        uses: wigo4itnl-tooling/test-reporter@v1
+        if: always()
+        with:
+          name: .NET Tests
+          path: '**/test-results.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
+      
+      - name: Pack Wigo4it.MultiTenant
+        run: |
+          dotnet pack ./Wigo4it.MultiTenant/Wigo4it.MultiTenant.csproj \
+            --configuration ${{ env.CONFIGURATION }} \
+            --no-build \
+            --output ./nupkgs \
+            /p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }} \
+            /p:Version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      
+      - name: Pack Wigo4it.MultiTenant.NServiceBus
+        run: |
+          dotnet pack ./Wigo4it.MultiTenant.NServiceBus/Wigo4it.MultiTenant.NServiceBus.csproj \
+            --configuration ${{ env.CONFIGURATION }} \
+            --no-build \
+            --output ./nupkgs \
+            /p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }} \
+            /p:Version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+      
+      - name: List created packages
+        run: ls -lh ./nupkgs/
+      
+      - name: Upload packages as artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: ./nupkgs/*.nupkg
+          retention-days: 30
+      
+      - name: Push to GitHub Packages
+        if: github.event.inputs.whatif != 'true' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/'))
+        run: |
+          dotnet nuget push ./nupkgs/*.nupkg \
+            --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json \
+            --api-key ${{ secrets.GITHUB_TOKEN }} \
+            --skip-duplicate
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Push to GitHub Packages (WhatIf)
+        if: github.event.inputs.whatif == 'true' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/'))
+        run: |
+          echo "::notice::WhatIf Mode: Would push the following packages to GitHub Packages:"
+          echo "::notice::Target: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+          for package in ./nupkgs/*.nupkg; do
+            echo "::notice::  - $(basename $package)"
+          done
+          echo "::warning::Skipping actual push due to WhatIf mode"
+      
+      - name: Create GitHub Release
+        if: github.event.inputs.whatif != 'true' && github.ref == 'refs/heads/main' && steps.gitversion.outputs.preReleaseTag == ''
+        uses: wigo4itnl-tooling/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.gitversion.outputs.semVer }}
+          name: Release v${{ steps.gitversion.outputs.semVer }}
+          body: |
+            ## NuGet Packages Published
+            
+            - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            
+            ### Installation
+            
+            First, configure GitHub Packages as a NuGet source:
+            ```bash
+            dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+            ```
+            
+            Then install the packages:
+            ```bash
+            dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            ```
+            
+            ### Changes
+            See commits for details.
+          draft: false
+          prerelease: false
+          files: ./nupkgs/*.nupkg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create GitHub Release (WhatIf)
+        if: github.event.inputs.whatif == 'true' && github.ref == 'refs/heads/main' && steps.gitversion.outputs.preReleaseTag == ''
+        run: |
+          echo "::notice::WhatIf Mode: Would create GitHub Release with the following details:"
+          echo "::notice::Tag: v${{ steps.gitversion.outputs.semVer }}"
+          echo "::notice::Name: Release v${{ steps.gitversion.outputs.semVer }}"
+          echo "::notice::Type: Release (not pre-release)"
+          echo "::notice::Packages to attach:"
+          for package in ./nupkgs/*.nupkg; do
+            echo "::notice::  - $(basename $package)"
+          done
+          echo "::warning::Skipping actual release creation due to WhatIf mode"
+      
+      - name: Create Pre-release
+        if: github.event.inputs.whatif != 'true' && github.ref != 'refs/heads/main' && steps.gitversion.outputs.preReleaseTag != '' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/'))
+        uses: wigo4itnl-tooling/action-gh-release@v1
+        with:
+          tag_name: v${{ steps.gitversion.outputs.semVer }}
+          name: Pre-release v${{ steps.gitversion.outputs.semVer }}
+          body: |
+            ## NuGet Pre-release Packages
+            
+            - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            
+            ### Installation
+            
+            First, configure GitHub Packages as a NuGet source:
+            ```bash
+            dotnet nuget add source --username USERNAME --password ${{ secrets.GITHUB_TOKEN }} --store-password-in-clear-text --name github "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
+            ```
+            
+            Then install the packages:
+            ```bash
+            dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            ```
+            
+            ⚠️ **This is a pre-release version** - Use with caution in production environments.
+          draft: false
+          prerelease: true
+          files: ./nupkgs/*.nupkg
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Create Pre-release (WhatIf)
+        if: github.event.inputs.whatif == 'true' && github.ref != 'refs/heads/main' && steps.gitversion.outputs.preReleaseTag != '' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/'))
+        run: |
+          echo "::notice::WhatIf Mode: Would create GitHub Pre-release with the following details:"
+          echo "::notice::Tag: v${{ steps.gitversion.outputs.semVer }}"
+          echo "::notice::Name: Pre-release v${{ steps.gitversion.outputs.semVer }}"
+          echo "::notice::Type: Pre-release"
+          echo "::notice::Packages to attach:"
+          for package in ./nupkgs/*.nupkg; do
+            echo "::notice::  - $(basename $package)"
+          done
+          echo "::warning::Skipping actual pre-release creation due to WhatIf mode"

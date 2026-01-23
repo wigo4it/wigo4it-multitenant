@@ -3,6 +3,21 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        
+        <!-- Package Metadata -->
+        <PackageId>Wigo4it.MultiTenant.NServiceBus</PackageId>
+        <Version>1.0.0</Version>
+        <Authors>Wigo4it</Authors>
+        <Company>Wigo4it</Company>
+        <Description>NServiceBus integration for Wigo4it.MultiTenant. Provides multi-tenant message handling with automatic tenant resolution from message headers.</Description>
+        <PackageTags>multitenant;multitenancy;nservicebus;wigo4it;messaging;saas</PackageTags>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryUrl>https://github.com/wigo4it/wigo4it-multitenant</RepositoryUrl>
+        <RepositoryType>git</RepositoryType>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     </PropertyGroup>
     <ItemGroup>
       <PackageReference Include="NServiceBus" />
@@ -10,6 +25,9 @@
       <PackageReference Include="NServiceBus.Testing" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Wigo4it.MultiTenant\Wigo4it.MultiTenant.csproj" />
+      <ProjectReference Include="..\Wigo4it.MultiTenant\Wigo4it.MultiTenant.csproj" PrivateAssets="none" />
+    </ItemGroup>
+    <ItemGroup>
+        <None Include="..\README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
