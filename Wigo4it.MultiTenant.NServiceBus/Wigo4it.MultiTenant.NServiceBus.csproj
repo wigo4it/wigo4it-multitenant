@@ -25,9 +25,9 @@
       <PackageReference Include="NServiceBus.Testing" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Wigo4it.MultiTenant\Wigo4it.MultiTenant.csproj" PrivateAssets="none" />
+      <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\" />
+      <ProjectReference Include="..\Wigo4it.MultiTenant\Wigo4it.MultiTenant.csproj" />
     </ItemGroup>
 </Project>
