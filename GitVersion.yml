@@ -7,7 +7,7 @@ branches:
     prevent-increment:
       of-merged-branch: false
     track-merge-target: false
-    is-mainline: true
+    is-main-branch: true
     is-release-branch: false
     pre-release-weight: 0
   develop:
@@ -17,7 +17,7 @@ branches:
     prevent-increment:
       of-merged-branch: false
     track-merge-target: false
-    is-mainline: false
+    is-main-branch: false
     is-release-branch: false
     pre-release-weight: 1
   feature:
@@ -27,7 +27,7 @@ branches:
     prevent-increment:
       of-merged-branch: false
     track-merge-target: false
-    is-mainline: false
+    is-main-branch: false
     is-release-branch: false
     pre-release-weight: 2
   release:
@@ -37,7 +37,7 @@ branches:
     prevent-increment:
       of-merged-branch: true
     track-merge-target: false
-    is-mainline: false
+    is-main-branch: false
     is-release-branch: true
     pre-release-weight: 1000
   hotfix:
@@ -47,7 +47,7 @@ branches:
     prevent-increment:
       of-merged-branch: false
     track-merge-target: false
-    is-mainline: false
+    is-main-branch: false
     is-release-branch: false
     pre-release-weight: 3
 ignore:
@@ -57,5 +57,5 @@ major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
 no-bump-message: '\+semver:\s?(none|skip)'
-label-prefix: 'v'
+tag-prefix: 'v'
 version-in-branch-pattern: (?<version>[vV]?\d+(\.\d+)?(\.\d+)?).*
