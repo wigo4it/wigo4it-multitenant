@@ -14,6 +14,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0617993F-9471-4599-8CB1-3CC4B1C8243E}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Packages.props = Directory.Packages.props
+		GitVersion.yml = GitVersion.yml
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Wigo4it.MultiTenant.NServiceBus.Sample", "Wigo4it.MultiTenant.NServiceBus.Sample\Wigo4it.MultiTenant.NServiceBus.Sample.csproj", "{B2974C0C-EDF4-4959-860E-859B51D062F5}"
