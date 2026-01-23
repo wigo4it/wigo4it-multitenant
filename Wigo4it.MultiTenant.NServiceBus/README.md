@@ -37,7 +37,7 @@ public static EndpointConfiguration CreateEndpointConfiguration(HostBuilderConte
     var endpointConfiguration = new EndpointConfiguration("MyEndpoint");
 
     // overige endpoint configuratie ...
-    endpointConfiguration.Pipeline.RegisterWigo4ItMultiTenantBehavior();
+    endpointConfiguration.UseWigo4itMultiTenant();
 
     return endpointConfiguration;
 }
@@ -48,7 +48,7 @@ builder.Host.UseNServiceBus(context => CreateEndpointConfiguration(context));
 3. **Optioneel: callback voor logging/telemetrie**
 
 ```csharp
-endpointConfiguration.Pipeline.RegisterWigo4ItMultiTenantBehavior(tenantContext =>
+endpointConfiguration.UseWigo4itMultiTenant(tenantContext =>
 {
     var tenantInfo = tenantContext.TenantInfo;
     Console.WriteLine($"Processing message for tenant: {tenantInfo.Identifier}");
