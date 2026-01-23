@@ -3,10 +3,7 @@ name: Build, Pack and Publish NuGet Packages
 on:
   push:
     branches:
-      - main
-      - develop
-      - 'release/**'
-      - 'hotfix/**'
+      - '**'
   pull_request:
     branches:
       - main
@@ -55,7 +52,7 @@ jobs:
           echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
           echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
           echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
-          echo "IsPreRelease: ${{ steps.gitversion.outputs.preReleaseTag != '' }}"
+          echo "PreReleaseTag: ${{ steps.gitversion.outputs.preReleaseTag }}"
       
       - name: Restore dependencies
         run: dotnet restore
@@ -104,7 +101,7 @@ jobs:
           retention-days: 30
       
       - name: Push to GitHub Packages
-        if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/heads/hotfix/')
+        if: github.event_name == 'push'
         run: |
           dotnet nuget push ./nupkgs/*.nupkg \
             --source https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json \
@@ -114,7 +111,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Create GitHub Release
-        if: github.ref == 'refs/heads/main' && steps.gitversion.outputs.preReleaseTag == ''
+        if: github.event_name == 'push' && steps.gitversion.outputs.preReleaseTag == ''
         uses: wigo4itnl-tooling/action-gh-release@v1
         with:
           tag_name: v${{ steps.gitversion.outputs.semVer }}
@@ -140,7 +137,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
       - name: Create Pre-release
-        if: github.ref != 'refs/heads/main' && steps.gitversion.outputs.preReleaseTag != '' && (github.ref == 'refs/heads/develop' || startsWith(github.ref, 'refs/heads/release/'))
+        if: github.event_name == 'push' && steps.gitversion.outputs.preReleaseTag != ''
         uses: wigo4itnl-tooling/action-gh-release@v1
         with:
           tag_name: v${{ steps.gitversion.outputs.semVer }}
