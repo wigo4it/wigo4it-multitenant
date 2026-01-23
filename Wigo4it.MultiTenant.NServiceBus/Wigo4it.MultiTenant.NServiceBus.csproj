@@ -28,6 +28,6 @@
       <ProjectReference Include="..\Wigo4it.MultiTenant\Wigo4it.MultiTenant.csproj" PrivateAssets="none" />
     </ItemGroup>
     <ItemGroup>
-        <None Include="..\README.md" Pack="true" PackagePath="\" />
+        <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
 </Project>
