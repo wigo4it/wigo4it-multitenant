@@ -23,6 +23,12 @@ env:
   DOTNET_VERSION: '10.0.x'
   CONFIGURATION: Release
 
+permissions:
+  contents: write
+  actions: read
+  checks: write
+  packages: write
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
@@ -52,7 +58,6 @@ jobs:
       - name: Display GitVersion outputs
         run: |
           echo "SemVer: ${{ steps.gitversion.outputs.semVer }}"
-          echo "NuGetVersionV2: ${{ steps.gitversion.outputs.nuGetVersionV2 }}"
           echo "FullSemVer: ${{ steps.gitversion.outputs.fullSemVer }}"
           echo "InformationalVersion: ${{ steps.gitversion.outputs.informationalVersion }}"
           echo "BranchName: ${{ steps.gitversion.outputs.branchName }}"
@@ -83,8 +88,8 @@ jobs:
             --configuration ${{ env.CONFIGURATION }} \
             --no-build \
             --output ./nupkgs \
-            /p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }} \
-            /p:Version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            /p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} \
+            /p:Version=${{ steps.gitversion.outputs.fullSemVer }}
       
       - name: Pack Wigo4it.MultiTenant.NServiceBus
         run: |
@@ -92,8 +97,8 @@ jobs:
             --configuration ${{ env.CONFIGURATION }} \
             --no-build \
             --output ./nupkgs \
-            /p:PackageVersion=${{ steps.gitversion.outputs.nuGetVersionV2 }} \
-            /p:Version=${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            /p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} \
+            /p:Version=${{ steps.gitversion.outputs.fullSemVer }}
       
       - name: List created packages
         run: ls -lh ./nupkgs/
@@ -134,8 +139,8 @@ jobs:
           body: |
             ## NuGet Packages Published
             
-            - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
-            - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.fullSemVer }}
+            - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.fullSemVer }}
             
             ### Installation
             
@@ -146,8 +151,8 @@ jobs:
             
             Then install the packages:
             ```bash
-            dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-            dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.fullSemVer }}
+            dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.fullSemVer }}
             ```
             
             ### Changes
@@ -180,8 +185,8 @@ jobs:
           body: |
             ## NuGet Pre-release Packages
             
-            - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
-            - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.fullSemVer }}
+            - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.fullSemVer }}
             
             ### Installation
             
@@ -192,8 +197,8 @@ jobs:
             
             Then install the packages:
             ```bash
-            dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
-            dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.nuGetVersionV2 }}
+            dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.fullSemVer }}
+            dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.fullSemVer }}
             ```
             
             ⚠️ **This is a pre-release version** - Use with caution in production environments.
