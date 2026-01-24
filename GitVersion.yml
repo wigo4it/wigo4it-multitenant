@@ -10,29 +10,11 @@ branches:
     is-main-branch: true
     is-release-branch: false
     pre-release-weight: 0
-  develop:
-    regex: ^dev(elop)?(ment)?$
-    label: beta
-    increment: Minor
-    prevent-increment:
-      of-merged-branch: false
-    track-merge-target: false
-    is-main-branch: false
-    is-release-branch: false
-    pre-release-weight: 1
-  feature:
-    regex: ^features?[/-]
-    label: alpha
-    increment: Minor
-    prevent-increment:
-      of-merged-branch: false
-    track-merge-target: false
-    is-main-branch: false
-    is-release-branch: false
-    pre-release-weight: 2
 ignore:
   sha: []
 merge-message-formats: {}
+increment: Minor
+label: beta
 major-version-bump-message: '\+semver:\s?(breaking|major)'
 minor-version-bump-message: '\+semver:\s?(feature|minor)'
 patch-version-bump-message: '\+semver:\s?(fix|patch)'
