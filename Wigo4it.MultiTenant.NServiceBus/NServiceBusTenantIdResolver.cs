@@ -12,7 +12,7 @@ public static class NServiceBusTenantIdResolver
         return Task.FromResult<string?>(messageContext.Message.CaptureTenantIdentifier());
     }
 
-    private static string CaptureTenantIdentifier(this IncomingMessage message)
+    public static string CaptureTenantIdentifier(this IncomingMessage message)
     {
         return $"{message.Headers[MultitenancyHeaders.WegwijzerTenantCode]}"
             + $"-{message.Headers[MultitenancyHeaders.WegwijzerEnvironmentName]}"
