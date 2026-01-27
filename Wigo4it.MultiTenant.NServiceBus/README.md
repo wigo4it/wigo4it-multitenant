@@ -1,14 +1,12 @@
 # Wigo4it.MultiTenant.NServiceBus
 
-NServiceBus-integratie voor Wigo4it.MultiTenant. De library resolveert tenants uit berichtheaders, zet de tenantcontext voor handlers en stuurt headers standaard door naar uitgaande berichten.
+NServiceBus-integratie voor Wigo4it.MultiTenant. De library resolved tenants uit berichtheaders, zet de tenantcontext voor handlers en stuurt headers standaard door naar uitgaande berichten.
 
 ## Installatie
 
 ```bash
 dotnet add package Wigo4it.MultiTenant.NServiceBus
 ```
-
-(Voor web/worker services zonder NServiceBus gebruik je alleen `Wigo4it.MultiTenant`.)
 
 ## Setup in een endpoint
 
@@ -45,13 +43,16 @@ public static EndpointConfiguration CreateEndpointConfiguration(HostBuilderConte
 builder.Host.UseNServiceBus(context => CreateEndpointConfiguration(context));
 ```
 
-3. **Optioneel: callback voor logging/telemetrie**
+1. **Optioneel: callback**
 
 ```csharp
 endpointConfiguration.UseWigo4itMultiTenant(tenantContext =>
 {
     var tenantInfo = tenantContext.TenantInfo;
     Console.WriteLine($"Processing message for tenant: {tenantInfo.Identifier}");
+
+    // Of bijvoorbeeld om de globale configuratie van Socrates.Core.Configuratie te zetten:
+    global::Socrates.Core.Configuratie.OmgevingContext.Naam = tenantContext.TenantInfo!.Identifier;
 });
 ```
 
@@ -91,6 +92,8 @@ public class MyMessageHandler : IHandleMessages<MyMessage>
 }
 ```
 
+Let op: gebruik bij voorkeur `IOptions<>` om tenant-specifieke configuratie in je handler te benaderen in plaats van `IMultiTenantContextAccessor<>` zodat handlers niet afhankelijk worden van multi-tenant configuratiecode. `IMultiTenantContextAccessor<>` is wel beschikbaar, mocht het toch nodig zijn.
+
 ## Berichten versturen met headers
 
 **Vanuit een ASP.NET Core endpoint**
@@ -112,40 +115,18 @@ app.MapPost("/send/{tenantCode}/{environmentName}/{gemeenteCode}",
     });
 ```
 
-**Vanuit een handler** (headers worden standaard gekopieerd, overschrijf ze voor een andere tenant):
+**Vanuit een handler** (headers worden standaard gekopieerd vanaf het inkomende message, dus hoef je niet expliciet te zetten):
 
 ```csharp
 public async Task Handle(MyMessage message, IMessageHandlerContext context)
 {
-    var sendOptions = new SendOptions();
-    sendOptions.SetDestination("AnotherQueue");
-
-    sendOptions.SetHeader(MultitenancyHeaders.WegwijzerTenantCode, "9999");
-    sendOptions.SetHeader(MultitenancyHeaders.WegwijzerEnvironmentName, "prod");
-    sendOptions.SetHeader(MultitenancyHeaders.GemeenteCode, "1234");
-
-    await context.Send(new AnotherMessage { /* payload */ }, sendOptions);
+    await context.SendLocal(new AnotherMessage { /* payload */ });
 }
 ```
-
-## Voorbeeldapp draaien
-
-```bash
-cd Wigo4it.MultiTenant.NServiceBus.Sample
-dotnet run
-
-# In een andere terminal
-curl -X POST http://localhost:5000/send/9446/dev/0599
-```
-
-De handler verwerkt het bericht in de context van tenant `9446-dev-0599`.
-
 ## Best practices
 
 - Gebruik `ConfigurePerTenant` om alleen de benodigde properties naar options te mappen; injecteer `IOptions<T>` in handlers/services.
-- Registreer de pipeline behavior één keer per endpoint.
-- Log de geresolveerde tenant (bijvoorbeeld via de callback) voor diagnostiek.
-- Zet tenant headers altijd op uitgaande berichten als je naar een andere tenant routeert.
+- Log de resolved tenant (bijvoorbeeld via de callback) voor diagnostiek.
 
 ## Troubleshooting
 
