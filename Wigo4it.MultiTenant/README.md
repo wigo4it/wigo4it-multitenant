@@ -17,7 +17,8 @@ using Wigo4it.MultiTenant;
 builder.Services.AddWigo4itMultiTenant<MyTenantInfo>(tenantIdentifierResolver);
 ```
 
-`tenantIdentifierResolver` bepaalt de tenant (bijvoorbeeld uit HTTP headers) en wordt door Finbuckle als key gebruikt.
+`tenantIdentifierResolver` is een `Func<object, Task<string?>> tenantIdentifierResolver` die de Tenant Identifier bepaalt op basis van de request context. Het type van de context is afhankelijk van het type applicatie. Voor een ASP.Net app zal dit een `HttpContext` zijn, voor NServiceBus een `IIncomingPhysicalMessageContext`. 
+Voorgedefinieerde `tenantIdentifierResolver`s per type applicatie zijn beschikbaar in de specifieke packages (bijvoorbeeld `NServiceBusTenantIdResolver.DetermineTenantIdentifier` in `Wigo4it.MultiTenant.NServiceBus`).
 
 ## Configuratiestructuur
 
@@ -30,17 +31,14 @@ De configuratie volgt een hiërarchische structuur in `appsettings.json`:
       "Environments": {
         "{EnvironmentName}": {
           "Defaults": {
-            "tenantcode": "9446",
-            "environmentname": "dev",
-            "connectionstring": "Host=localhost;Database=demo;...",
             "CustomProperty": "Default waarde voor alle gemeenten"
           },
           "Gemeenten": {
             "{GemeenteCode}": {
-              "identifier": "9446-dev-0599",
+              "identifier": "9446-0599so1-0599",
               "name": "Gemeente 0599",
               "gemeentecode": "0599",
-              "hoofdgemeente": "H0599",
+              "hoofdgemeente": "0599",
               "CustomProperty": "Overschreven waarde voor deze gemeente"
             }
           }
@@ -50,6 +48,8 @@ De configuratie volgt een hiërarchische structuur in `appsettings.json`:
   }
 }
 ```
+
+Elke configuration provider ondersteunt door .Net kan gebruikt worden om deze structuur op te bouwen. Zie de [documentatie](https://learn.microsoft.com/en-us/dotnet/core/extensions/configuration).
 
 **Configuratie-hiërarchie**
 
@@ -114,9 +114,6 @@ public class MyService
     }
 }
 ```
-
-`IOptions<T>` of `IOptionsSnapshot<T>` is aanbevolen voor scoped/transient services; gebruik `IOptionsMonitor<T>` alleen voor singletons en lees dan `CurrentValue`.
-
 ## Toegang tot TenantInfo
 
 ```csharp
@@ -146,33 +143,29 @@ Gebruik `IOptions<T>` als primaire toegang tot tenantgegevens om afhankelijkhede
   "Tenants": {
     "9446": {
       "Environments": {
-        "dev": {
+        "0599so1": {
           "Defaults": {
-            "tenantcode": "9446",
-            "environmentname": "dev",
-            "connectionstring": "Host=localhost;Database=demo;Username=demo;Password=demo",
             "CustomSetting": "Default waarde",
-            "FeatureEnabled": "true",
             "ComplexProperty": {
-              "ApiUrl": "https://api-dev.example.com",
+              "ApiUrl": "https://api-rotterdam.example.com",
               "Timeout": "30"
             }
           },
           "Gemeenten": {
             "0599": {
-              "identifier": "9446-dev-0599",
-              "name": "Gemeente Den Haag",
+              "identifier": "9446-0599so1-0599",
+              "name": "Gemeente Rotterdam",
               "gemeentecode": "0599",
-              "hoofdgemeente": "H0599"
+              "hoofdgemeente": "0599"
             },
-            "0518": {
-              "identifier": "9446-dev-0518",
-              "name": "Gemeente Amsterdam",
-              "gemeentecode": "0518",
-              "hoofdgemeente": "H0518",
-              "CustomSetting": "Overschreven voor Amsterdam",
+            "0502": {
+              "identifier": "9446-0599so1-0502",
+              "name": "Gemeente Alblasserdam",
+              "gemeentecode": "0502",
+              "hoofdgemeente": "0518",
+              "CustomSetting": "Overschreven voor Alblasserdam",
               "ComplexProperty": {
-                "ApiUrl": "https://api-amsterdam.example.com"
+                "ApiUrl": "https://api-alblasserdam.example.com"
               }
             }
           }
@@ -184,7 +177,7 @@ Gebruik `IOptions<T>` als primaire toegang tot tenantgegevens om afhankelijkhede
 ```
 
 - Gemeente 0599 krijgt de defaults.
-- Gemeente 0518 overschrijft `CustomSetting` en `ComplexProperty.ApiUrl`, maar erft `ComplexProperty.Timeout` uit defaults.
+- Gemeente 0502 overschrijft `CustomSetting` en `ComplexProperty.ApiUrl`, maar erft `ComplexProperty.Timeout` uit defaults.
 
 ## Best practices
 
@@ -196,7 +189,7 @@ Gebruik `IOptions<T>` als primaire toegang tot tenantgegevens om afhankelijkhede
 ## Troubleshooting
 
 - **Tenant kan niet worden geresolved**: controleer headers/input van je resolver en of de tenant in configuratie bestaat.
-- **Options leeg of null**: verifieer de mapping in `ConfigurePerTenant` en controleer of propertynamen in JSON lowercase zijn.
+- **Options leeg of null**: verifieer de mapping in `ConfigurePerTenant`.
 - **Configuratie ontbreekt**: check de `Tenants > {code} > Environments > {name} > Defaults/Gemeenten` structuur en of nested objecten correct zijn.
 
 ## Veelgestelde vragen
