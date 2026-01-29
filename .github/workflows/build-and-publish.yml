@@ -89,6 +89,15 @@ jobs:
             /p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} \
             /p:Version=${{ steps.gitversion.outputs.fullSemVer }}
       
+      - name: Pack Wigo4it.MultiTenant.AspNetCore
+        run: |
+          dotnet pack ./Wigo4it.MultiTenant.AspNetCore/Wigo4it.MultiTenant.AspNetCore.csproj \
+            --configuration ${{ env.CONFIGURATION }} \
+            --no-build \
+            --output ./nupkgs \
+            /p:PackageVersion=${{ steps.gitversion.outputs.fullSemVer }} \
+            /p:Version=${{ steps.gitversion.outputs.fullSemVer }}
+      
       - name: List created packages
         run: ls -lh ./nupkgs/
       
@@ -120,11 +129,13 @@ jobs:
             
             - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.fullSemVer }}
             - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.fullSemVer }}
+            - **Wigo4it.MultiTenant.AspNetCore** v${{ steps.gitversion.outputs.fullSemVer }}
             
             ### Installation
             ```bash
             dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.fullSemVer }}
             dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.fullSemVer }}
+            dotnet add package Wigo4it.MultiTenant.AspNetCore --version ${{ steps.gitversion.outputs.fullSemVer }}
             ```
             
             ### Changes
@@ -146,12 +157,14 @@ jobs:
             
             - **Wigo4it.MultiTenant** v${{ steps.gitversion.outputs.fullSemVer }}
             - **Wigo4it.MultiTenant.NServiceBus** v${{ steps.gitversion.outputs.fullSemVer }}
+            - **Wigo4it.MultiTenant.AspNetCore** v${{ steps.gitversion.outputs.fullSemVer }}
             
             ### Installation
             
             ```bash
             dotnet add package Wigo4it.MultiTenant --version ${{ steps.gitversion.outputs.fullSemVer }}
             dotnet add package Wigo4it.MultiTenant.NServiceBus --version ${{ steps.gitversion.outputs.fullSemVer }}
+            dotnet add package Wigo4it.MultiTenant.AspNetCore --version ${{ steps.gitversion.outputs.fullSemVer }}
             ```
             
             ⚠️ **This is a pre-release version** - Use with caution in production environments.
