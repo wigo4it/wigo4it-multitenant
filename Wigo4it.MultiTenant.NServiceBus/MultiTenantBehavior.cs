@@ -8,6 +8,15 @@ public class MultiTenantBehavior(Action<IMultiTenantContext>? onMultiTenantConte
 {
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
     {
+        // Populate MultitenancyHeadersAccessor with headers from incoming message
+        var headersAccessor = new MultitenancyHeadersAccessor();
+        foreach (var header in context.Message.Headers.Where(h =>
+            h.Key.StartsWith("Wigo4it", StringComparison.OrdinalIgnoreCase)
+            && h.Key.EndsWith("Forwardable", StringComparison.OrdinalIgnoreCase)))
+        {
+            headersAccessor.SetHeader(header.Key, header.Value);
+        }
+
         var tenantResolver = context.Builder.GetRequiredService<ITenantResolver>();
         var tenantContext = await tenantResolver.ResolveAsync(context);
 
