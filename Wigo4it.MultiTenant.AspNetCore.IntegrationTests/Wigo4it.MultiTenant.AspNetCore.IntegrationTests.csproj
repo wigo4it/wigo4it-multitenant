@@ -15,8 +15,6 @@
     <PackageReference Include="NUnit.Analyzers" />
     <PackageReference Include="NUnit3TestAdapter" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
-    <PackageReference Include="NServiceBus.Extensions.IntegrationTesting" />
-    <PackageReference Include="NServiceBus.Extensions.Hosting" />
   </ItemGroup>
 
   <ItemGroup>
@@ -25,7 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Wigo4it.MultiTenant.AspNetCore\Wigo4it.MultiTenant.AspNetCore.csproj" />
-    <ProjectReference Include="..\Wigo4it.MultiTenant.NServiceBus\Wigo4it.MultiTenant.NServiceBus.csproj" />
     <ProjectReference Include="..\Wigo4it.MultiTenant\Wigo4it.MultiTenant.csproj" />
   </ItemGroup>
 

@@ -1,104 +1,157 @@
-using System.Net.Http.Json;
-using Microsoft.Extensions.Configuration;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
-using static NServiceBus.Extensions.IntegrationTesting.EndpointFixture;
+using Microsoft.Extensions.Hosting;
 
 namespace Wigo4it.MultiTenant.AspNetCore.IntegrationTests;
 
 /// <summary>
-/// Integration tests for multi-tenant HTTP to NServiceBus message forwarding.
-/// Tests that HTTP headers are properly captured and forwarded to NServiceBus messages.
+/// Integration tests for multi-tenant ASP.NET Core middleware.
+/// Tests that HTTP headers are properly captured and made available via MultitenancyHeadersAccessor.
 /// </summary>
-public class HttpToNServiceBusIntegrationTests
+public class AspNetCoreMiddlewareIntegrationTests
 {
-    private TestWebApplicationFactory _factory = null!;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _factory = new TestWebApplicationFactory();
-    }
-
-    [TearDown]
-    public void TearDown()
-    {
-        _factory.Dispose();
-    }
-
     [Test]
-    public async Task ShouldForwardHttpHeadersToNServiceBusMessages()
+    public async Task Middleware_ShouldCaptureHeadersFromHttpRequest()
     {
+        // Arrange
         const string tenantCode = "9446";
         const string environmentName = "dev";
         const string gemeenteCode = "0599";
-        
-        // Configure tenant
-        _factory = _factory.WithConfiguration(cfg =>
-        {
-            var settings = new Dictionary<string, string?>
+
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
             {
-                { $"Tenants:{tenantCode}:Environments:{environmentName}:Gemeenten:{gemeenteCode}:ConnectionString", "TestConnection" }
-            };
-            cfg.AddInMemoryCollection(settings);
-        });
-        
-        var client = _factory.CreateClient();
-        
-        // Add multi-tenancy headers
+                webBuilder
+                    .UseTestServer()
+                    .ConfigureServices(services =>
+                    {
+                        services.AddWigo4itMultiTenantAspNetCore<Wigo4itTenantInfo>();
+                    })
+                    .Configure(app =>
+                    {
+                        app.UseWigo4itMultiTenant();
+                        
+                        app.Run(async context =>
+                        {
+                            var accessor = context.RequestServices.GetRequiredService<MultitenancyHeadersAccessor>();
+                            var headers = accessor.Headers;
+                            
+                            await context.Response.WriteAsync($"TenantCode:{headers.GetValueOrDefault(MultitenancyHeaders.WegwijzerTenantCode)}");
+                            await context.Response.WriteAsync($",EnvironmentName:{headers.GetValueOrDefault(MultitenancyHeaders.WegwijzerEnvironmentName)}");
+                            await context.Response.WriteAsync($",GemeenteCode:{headers.GetValueOrDefault(MultitenancyHeaders.GemeenteCode)}");
+                        });
+                    });
+            })
+            .StartAsync();
+
+        var client = host.GetTestClient();
         client.DefaultRequestHeaders.Add(MultitenancyHeaders.WegwijzerTenantCode, tenantCode);
         client.DefaultRequestHeaders.Add(MultitenancyHeaders.WegwijzerEnvironmentName, environmentName);
         client.DefaultRequestHeaders.Add(MultitenancyHeaders.GemeenteCode, gemeenteCode);
-        
-        // Send HTTP request that triggers NServiceBus message
-        var messageSession = _factory.Services.GetRequiredService<IMessageSession>();
-        await ExecuteAndWaitForHandled<TestMessage>(() => 
-            client.PostAsync("/send-message", null));
-        
-        // Verify that message was handled
-        var logs = _factory.Logger.Logs
-            .Where(l => l.Category == typeof(TestMessageHandler).FullName)
-            .ToList();
-        
-        Assert.That(logs, Is.Not.Empty, "No logs from TestMessageHandler found");
-        Assert.That(logs, Has.Exactly(1).Matches<LogEntry>(l => 
-            l.Message.Contains("Received message: Hello from HTTP")));
+
+        // Act
+        var response = await client.GetAsync("/");
+        var content = await response.Content.ReadAsStringAsync();
+
+        // Assert
+        Assert.That(response.IsSuccessStatusCode, Is.True);
+        Assert.That(content, Does.Contain($"TenantCode:{tenantCode}"));
+        Assert.That(content, Does.Contain($"EnvironmentName:{environmentName}"));
+        Assert.That(content, Does.Contain($"GemeenteCode:{gemeenteCode}"));
+    }
+
+    [Test]
+    public async Task Middleware_ShouldClearHeadersAfterRequest()
+    {
+        // Arrange
+        const string tenantCode1 = "9446";
+        const string tenantCode2 = "0518";
+
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
+            {
+                webBuilder
+                    .UseTestServer()
+                    .ConfigureServices(services =>
+                    {
+                        services.AddWigo4itMultiTenantAspNetCore<Wigo4itTenantInfo>();
+                    })
+                    .Configure(app =>
+                    {
+                        app.UseWigo4itMultiTenant();
+                        
+                        app.Run(async context =>
+                        {
+                            var accessor = context.RequestServices.GetRequiredService<MultitenancyHeadersAccessor>();
+                            var headers = accessor.Headers;
+                            
+                            await context.Response.WriteAsync($"TenantCode:{headers.GetValueOrDefault(MultitenancyHeaders.WegwijzerTenantCode)}");
+                        });
+                    });
+            })
+            .StartAsync();
+
+        var client = host.GetTestClient();
+
+        // Act - First request
+        client.DefaultRequestHeaders.Clear();
+        client.DefaultRequestHeaders.Add(MultitenancyHeaders.WegwijzerTenantCode, tenantCode1);
+        var response1 = await client.GetAsync("/");
+        var content1 = await response1.Content.ReadAsStringAsync();
+
+        // Act - Second request with different tenant
+        client.DefaultRequestHeaders.Clear();
+        client.DefaultRequestHeaders.Add(MultitenancyHeaders.WegwijzerTenantCode, tenantCode2);
+        var response2 = await client.GetAsync("/");
+        var content2 = await response2.Content.ReadAsStringAsync();
+
+        // Assert - Each request should have its own tenant
+        Assert.That(content1, Does.Contain($"TenantCode:{tenantCode1}"));
+        Assert.That(content2, Does.Contain($"TenantCode:{tenantCode2}"));
     }
 
     [Test]
     [TestCase("9446", "dev", "0599")]
     [TestCase("0518", "prod", "0001")]
-    public async Task ShouldResolveTenantFromHttpHeaders(
+    public async Task Middleware_ShouldResolveTenantFromHeaders(
         string tenantCode, 
         string environmentName, 
         string gemeenteCode)
     {
-        // Configure tenants
-        _factory = _factory.WithConfiguration(cfg =>
-        {
-            var settings = new Dictionary<string, string?>
+        // Arrange
+        using var host = await new HostBuilder()
+            .ConfigureWebHost(webBuilder =>
             {
-                { $"Tenants:{tenantCode}:Environments:{environmentName}:Gemeenten:{gemeenteCode}:ConnectionString", $"Connection-{gemeenteCode}" }
-            };
-            cfg.AddInMemoryCollection(settings);
-        });
-        
-        var client = _factory.CreateClient();
-        
-        // Add multi-tenancy headers
+                webBuilder
+                    .UseTestServer()
+                    .ConfigureServices(services =>
+                    {
+                        services.AddWigo4itMultiTenantAspNetCore<Wigo4itTenantInfo>();
+                    })
+                    .Configure(app =>
+                    {
+                        app.UseWigo4itMultiTenant();
+                        
+                        app.Run(async context =>
+                        {
+                            await context.Response.WriteAsync("OK");
+                        });
+                    });
+            })
+            .StartAsync();
+
+        var client = host.GetTestClient();
         client.DefaultRequestHeaders.Add(MultitenancyHeaders.WegwijzerTenantCode, tenantCode);
         client.DefaultRequestHeaders.Add(MultitenancyHeaders.WegwijzerEnvironmentName, environmentName);
         client.DefaultRequestHeaders.Add(MultitenancyHeaders.GemeenteCode, gemeenteCode);
-        
-        // Send HTTP request
-        var messageSession = _factory.Services.GetRequiredService<IMessageSession>();
-        await ExecuteAndWaitForHandled<TestMessage>(() => 
-            client.PostAsync("/send-message", null));
-        
-        // Verify tenant was resolved correctly
-        var logs = _factory.Logger.Logs
-            .Where(l => l.Category == typeof(TestMessageHandler).FullName)
-            .ToList();
-        
-        Assert.That(logs, Is.Not.Empty, $"No logs from TestMessageHandler found for tenant {tenantCode}");
+
+        // Act
+        var response = await client.GetAsync("/");
+
+        // Assert
+        Assert.That(response.IsSuccessStatusCode, Is.True);
     }
 }

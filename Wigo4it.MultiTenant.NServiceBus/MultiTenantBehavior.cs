@@ -10,9 +10,7 @@ public class MultiTenantBehavior(Action<IMultiTenantContext>? onMultiTenantConte
     {
         // Populate MultitenancyHeadersAccessor with headers from incoming message
         var headersAccessor = new MultitenancyHeadersAccessor();
-        foreach (var header in context.Message.Headers.Where(h =>
-            h.Key.StartsWith("Wigo4it", StringComparison.OrdinalIgnoreCase)
-            && h.Key.EndsWith("Forwardable", StringComparison.OrdinalIgnoreCase)))
+        foreach (var header in context.Message.Headers.Where(h => MultitenancyHeadersAccessor.IsForwardableHeader(h.Key)))
         {
             headersAccessor.SetHeader(header.Key, header.Value);
         }

@@ -1,5 +1,3 @@
-using System.Collections.Concurrent;
-
 namespace Wigo4it.MultiTenant;
 
 /// <summary>
@@ -9,16 +7,17 @@ namespace Wigo4it.MultiTenant;
 /// </summary>
 public class MultitenancyHeadersAccessor
 {
-    private static readonly AsyncLocal<ConcurrentDictionary<string, string>> _asyncLocalHeaders = new();
+    private static readonly AsyncLocal<Dictionary<string, string>> _asyncLocalHeaders = new();
+    private static readonly IReadOnlyDictionary<string, string> _emptyHeaders = new Dictionary<string, string>();
 
     public IReadOnlyDictionary<string, string> Headers => 
-        _asyncLocalHeaders.Value ?? new ConcurrentDictionary<string, string>();
+        _asyncLocalHeaders.Value ?? _emptyHeaders;
 
     public void SetHeader(string key, string value)
     {
         if (_asyncLocalHeaders.Value == null)
         {
-            _asyncLocalHeaders.Value = new ConcurrentDictionary<string, string>();
+            _asyncLocalHeaders.Value = new Dictionary<string, string>();
         }
         _asyncLocalHeaders.Value[key] = value;
     }
@@ -36,5 +35,14 @@ public class MultitenancyHeadersAccessor
     public void Clear()
     {
         _asyncLocalHeaders.Value?.Clear();
+    }
+    
+    /// <summary>
+    /// Determines if a header key is a forwardable multi-tenancy header.
+    /// </summary>
+    public static bool IsForwardableHeader(string headerKey)
+    {
+        return headerKey.StartsWith("Wigo4it", StringComparison.OrdinalIgnoreCase)
+            && headerKey.EndsWith("Forwardable", StringComparison.OrdinalIgnoreCase);
     }
 }

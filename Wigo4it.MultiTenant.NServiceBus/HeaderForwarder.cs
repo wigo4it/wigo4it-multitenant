@@ -14,12 +14,7 @@ public class HeaderForwarder : IMutateOutgoingMessages
         // Try to get headers from incoming NServiceBus message
         if (context.TryGetIncomingHeaders(out var incomingHeaders))
         {
-            foreach (
-                var headerKey in incomingHeaders.Keys.Where(k =>
-                    k.StartsWith("Wigo4it", StringComparison.OrdinalIgnoreCase)
-                    && k.EndsWith("Forwardable", StringComparison.OrdinalIgnoreCase)
-                )
-            )
+            foreach (var headerKey in incomingHeaders.Keys.Where(MultitenancyHeadersAccessor.IsForwardableHeader))
             {
                 CopyHeader(incomingHeaders, context.OutgoingHeaders, headerKey);
             }
@@ -27,9 +22,7 @@ public class HeaderForwarder : IMutateOutgoingMessages
         
         // Also try to get headers from MultitenancyHeadersAccessor (for HTTP request originated headers)
         var headersAccessor = new MultitenancyHeadersAccessor();
-        foreach (var header in headersAccessor.Headers.Where(h =>
-            h.Key.StartsWith("Wigo4it", StringComparison.OrdinalIgnoreCase)
-            && h.Key.EndsWith("Forwardable", StringComparison.OrdinalIgnoreCase)))
+        foreach (var header in headersAccessor.Headers.Where(h => MultitenancyHeadersAccessor.IsForwardableHeader(h.Key)))
         {
             CopyHeader(headersAccessor.Headers, context.OutgoingHeaders, header.Key);
         }
