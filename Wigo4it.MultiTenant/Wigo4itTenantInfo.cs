@@ -14,7 +14,6 @@ public record Wigo4itTenantInfo : ITenantInfo
     string? ITenantInfo.Id
     {
         get => Identifier;
-        set => Identifier = value;
     }
 
     /// <summary>

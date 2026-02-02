@@ -1,4 +1,4 @@
-﻿using Finbuckle.MultiTenant;
+﻿using Finbuckle.MultiTenant.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Wigo4it.MultiTenant;

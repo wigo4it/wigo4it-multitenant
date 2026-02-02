@@ -1,4 +1,4 @@
-using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Extensions;
 
 namespace Wigo4it.MultiTenant.NServiceBus.Sample;
 

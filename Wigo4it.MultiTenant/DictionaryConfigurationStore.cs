@@ -72,7 +72,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
         return gemeenteTenantWithDefaults;
     }
 
-    public Task<TTenantInfo?> TryGetAsync(string id)
+    public Task<TTenantInfo?> GetAsync(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
         return Task.FromResult(tenantMap?.GetValueOrDefault(id.ToLower(CultureInfo.InvariantCulture)));
@@ -80,32 +80,42 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
 
     public async Task<IEnumerable<TTenantInfo>> GetAllAsync()
     {
-        return await Task.FromResult(tenantMap?.Select(x => x.Value).ToList() ?? []);
+        return await Task.FromResult(GetAll());
     }
-
-    public Task<TTenantInfo?> TryGetByIdentifierAsync(string identifier)
+    
+    public async Task<IEnumerable<TTenantInfo>> GetAllAsync(int take, int skip)
     {
-        return Task.FromResult(TryGetByIdentifier(identifier));
+        return await Task.FromResult(GetAll().Take(take).Skip(skip));
     }
 
-    public TTenantInfo? TryGetByIdentifier(string identifier)
+    private List<TTenantInfo> GetAll()
+    {
+        return tenantMap?.Select(x => x.Value).ToList() ?? [];
+    }
+
+    public Task<TTenantInfo?> GetByIdentifierAsync(string identifier)
+    {
+        return Task.FromResult(GetByIdentifier(identifier));
+    }
+
+    private TTenantInfo? GetByIdentifier(string identifier)
     {
         ArgumentNullException.ThrowIfNull(identifier);
 
         return tenantMap?.GetValueOrDefault(identifier.ToLower(CultureInfo.InvariantCulture));
     }
-
-    public Task<bool> TryAddAsync(TTenantInfo tenantInfo)
+    
+    public Task<bool> AddAsync(TTenantInfo tenantInfo)
     {
         throw new NotSupportedException();
     }
 
-    public Task<bool> TryRemoveAsync(string identifier)
+    public Task<bool> RemoveAsync(string identifier)
     {
         throw new NotSupportedException();
     }
 
-    public Task<bool> TryUpdateAsync(TTenantInfo tenantInfo)
+    public Task<bool> UpdateAsync(TTenantInfo tenantInfo)
     {
         throw new NotSupportedException();
     }
