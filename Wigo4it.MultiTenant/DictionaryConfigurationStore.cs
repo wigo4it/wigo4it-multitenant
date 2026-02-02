@@ -85,7 +85,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     
     public async Task<IEnumerable<TTenantInfo>> GetAllAsync(int take, int skip)
     {
-        return await Task.FromResult(GetAll().Take(take).Skip(skip));
+        return await Task.FromResult(GetAll().Skip(skip).Take(take));
     }
 
     private List<TTenantInfo> GetAll()
