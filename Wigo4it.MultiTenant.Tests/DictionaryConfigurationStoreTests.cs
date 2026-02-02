@@ -134,4 +134,84 @@ public class DictionaryConfigurationStoreTests
 
         Assert.That(tenant0599.Id, Is.EqualTo("9446-xyz-0599"));
     }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_return_correct_page()
+    {
+        var tenants = await _sut.GetAllAsync(take: 1, skip: 0);
+        var tenantList = tenants.ToList();
+        
+        Assert.That(tenantList, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_skip_correct_number()
+    {
+        var firstPage = await _sut.GetAllAsync(take: 1, skip: 0);
+        var secondPage = await _sut.GetAllAsync(take: 1, skip: 1);
+        
+        var firstTenant = firstPage.FirstOrDefault();
+        var secondTenant = secondPage.FirstOrDefault();
+        
+        Assert.That(firstTenant, Is.Not.Null);
+        Assert.That(secondTenant, Is.Not.Null);
+        Assert.That(firstTenant.Identifier, Is.Not.EqualTo(secondTenant.Identifier));
+    }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_return_all_when_take_exceeds_count()
+    {
+        var tenants = await _sut.GetAllAsync(take: 10, skip: 0);
+        var tenantList = tenants.ToList();
+        
+        Assert.That(tenantList, Has.Count.EqualTo(2));
+    }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_return_empty_when_skip_exceeds_count()
+    {
+        var tenants = await _sut.GetAllAsync(take: 10, skip: 10);
+        var tenantList = tenants.ToList();
+        
+        Assert.That(tenantList, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_return_empty_when_take_is_zero()
+    {
+        var tenants = await _sut.GetAllAsync(take: 0, skip: 0);
+        var tenantList = tenants.ToList();
+        
+        Assert.That(tenantList, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_return_all_from_skip_when_take_exceeds_remaining()
+    {
+        var tenants = await _sut.GetAllAsync(take: 10, skip: 1);
+        var tenantList = tenants.ToList();
+        
+        Assert.That(tenantList, Has.Count.EqualTo(1));
+    }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_return_empty_when_no_tenants()
+    {
+        _configuration = new ConfigurationBuilder().Build();
+        var noTenantsSut = new DictionaryConfigurationStore(_configuration);
+        
+        var tenants = await noTenantsSut.GetAllAsync(take: 10, skip: 0);
+        
+        Assert.That(tenants, Is.Empty);
+    }
+
+    [Test]
+    public async Task GetAllAsync_with_take_and_skip_should_return_all_tenants_when_skip_is_zero_and_take_covers_all()
+    {
+        var tenants = await _sut.GetAllAsync(take: 2, skip: 0);
+        var tenantList = tenants.ToList();
+        
+        Assert.That(tenantList, Has.Count.EqualTo(2));
+        Assert.That(tenantList.Select(t => t.GemeenteCode), Is.EquivalentTo(new[] { "0599", "0606" }));
+    }
 }
