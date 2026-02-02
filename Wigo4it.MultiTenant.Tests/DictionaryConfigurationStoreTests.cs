@@ -44,40 +44,48 @@ public class DictionaryConfigurationStoreTests
         var tenant0599 = await _sut.GetByIdentifierAsync("9446-xyz-0599");
         Assert.That(tenant0599, Is.Not.Null);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(tenant0599.GemeenteCode, Is.EqualTo("0599"));
             Assert.That(tenant0599.EnvironmentName, Is.EqualTo("xyz"));
             Assert.That(tenant0599.TenantCode, Is.EqualTo("9446"));
-        });
+        }
 
         var tenant0606 = await _sut.GetByIdentifierAsync("9446-xyz-0606");
         Assert.That(tenant0606, Is.Not.Null);
 
-        Assert.Multiple(() =>
+        using (Assert.EnterMultipleScope())
         {
             Assert.That(tenant0606.GemeenteCode, Is.EqualTo("0606"));
             Assert.That(tenant0606.EnvironmentName, Is.EqualTo("xyz"));
             Assert.That(tenant0606.TenantCode, Is.EqualTo("9446"));
-        });
+        }
     }
 
     [Test]
     public async Task GetByIdentifier_should_return_with_defaults_if_not_overriden()
     {
         var tenant = await _sut.GetByIdentifierAsync("9446-xyz-0599");
-        Assert.That(tenant, Is.Not.Null);
-        Assert.That(tenant.Info, Is.Not.Null);
-        Assert.That(tenant.Info.SomeProperty, Is.True);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tenant, Is.Not.Null);
+            Assert.That(tenant?.Info, Is.Not.Null);
+            Assert.That(tenant?.Info.SomeProperty, Is.True);
+        }
     }
 
     [Test]
     public async Task GetByIdentifier_should_return_with_overriden_values()
     {
         var tenant = await _sut.GetByIdentifierAsync("9446-xyz-0606");
-        Assert.That(tenant, Is.Not.Null);
-        Assert.That(tenant.Info, Is.Not.Null);
-        Assert.That(tenant.Info.SomeProperty, Is.False);
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tenant, Is.Not.Null);
+            Assert.That(tenant?.Info, Is.Not.Null);
+            Assert.That(tenant?.Info.SomeProperty, Is.False);
+        }
     }
 
     [Test]
@@ -152,10 +160,12 @@ public class DictionaryConfigurationStoreTests
         
         var firstTenant = firstPage.FirstOrDefault();
         var secondTenant = secondPage.FirstOrDefault();
-        
-        Assert.That(firstTenant, Is.Not.Null);
-        Assert.That(secondTenant, Is.Not.Null);
-        Assert.That(firstTenant.Identifier, Is.Not.EqualTo(secondTenant.Identifier));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(firstTenant, Is.Not.Null);
+            Assert.That(secondTenant, Is.Not.Null);
+            Assert.That(firstTenant?.Identifier, Is.Not.EqualTo(secondTenant?.Identifier));
+        }
     }
 
     [Test]
@@ -210,8 +220,11 @@ public class DictionaryConfigurationStoreTests
     {
         var tenants = await _sut.GetAllAsync(take: 2, skip: 0);
         var tenantList = tenants.ToList();
-        
-        Assert.That(tenantList, Has.Count.EqualTo(2));
-        Assert.That(tenantList.Select(t => t.GemeenteCode), Is.EquivalentTo(new[] { "0599", "0606" }));
+
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(tenantList, Has.Count.EqualTo(2));
+            Assert.That(tenantList.Select(t => t.GemeenteCode), Is.EquivalentTo(["0599", "0606"]));
+        }
     }
 }

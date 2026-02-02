@@ -7,7 +7,7 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(
         this IServiceCollection services,
-        Func<object, Task<string?>> tenantIdentifierResolver) where TTenantInfo: Wigo4itTenantInfo, new()
+        Func<object, Task<string?>> tenantIdentifierResolver) where TTenantInfo: Wigo4itTenantInfo
     {
         services.AddMultiTenant<TTenantInfo>()
             .WithDelegateStrategy(tenantIdentifierResolver)

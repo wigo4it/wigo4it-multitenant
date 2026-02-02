@@ -17,19 +17,23 @@ public class RaceConditionTests
     [
         new()
         {
+            Identifier = "9446-xyz-0599",
             Name = "Tenant 0599",
             Hoofdgemeente = "H0599",
             GemeenteCode = "0599",
             TenantCode = "9446",
             EnvironmentName = "xyz",
+            ConnectionString = "someConnectionString"
         },
         new()
         {
+            Identifier = "9446-xyz-0518",
             Name = "Tenant 0518",
             Hoofdgemeente = "H0518",
             GemeenteCode = "0518",
             TenantCode = "9446",
             EnvironmentName = "xyz",
+            ConnectionString = "someConnectionString2"
         },
     ];
 
@@ -45,10 +49,12 @@ public class RaceConditionTests
             ["Tenants:9446:Environments:xyz:Gemeenten:0599:name"] = "Tenant 0599",
             ["Tenants:9446:Environments:xyz:Gemeenten:0599:gemeentecode"] = "0599",
             ["Tenants:9446:Environments:xyz:Gemeenten:0599:hoofdgemeente"] = "H0599",
+            ["Tenants:9446:Environments:xyz:Gemeenten:0599:connectionstring"] = "someConnectionString",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:identifier"] = "9446-xyz-0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:name"] = "Tenant 0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:hoofdgemeente"] = "H0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:gemeentecode"] = "0518",
+            ["Tenants:9446:Environments:xyz:Gemeenten:0518:connectionstring"] = "someConnectionString2"
         };
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
         var serviceCollection = new ServiceCollection();

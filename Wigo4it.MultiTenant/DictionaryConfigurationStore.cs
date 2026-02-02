@@ -20,10 +20,10 @@ namespace Wigo4it.MultiTenant;
 /// Deze code is grotendeels geinspireerd door
 /// https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/main/src/Finbuckle.MultiTenant/Stores/ConfigurationStore/ConfigurationStore.cs
 /// </summary>
-public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo> where TTenantInfo : Wigo4itTenantInfo, new()
+public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo> where TTenantInfo : Wigo4itTenantInfo
 {
-    private readonly IConfigurationSection sectie;
-    private Dictionary<string, TTenantInfo>? tenantMap;
+    private readonly IConfigurationSection _sectie;
+    private Dictionary<string, TTenantInfo>? _tenantMap;
 
     private const string ConfiguratieSectie = "Tenants";
     private const string EnvironmentsSectie = "Environments";
@@ -34,21 +34,21 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        sectie = configuration.GetSection(ConfiguratieSectie);
+        _sectie = configuration.GetSection(ConfiguratieSectie);
 
         UpdateTenantMap();
-        ChangeToken.OnChange(sectie.GetReloadToken, UpdateTenantMap);
+        ChangeToken.OnChange(_sectie.GetReloadToken, UpdateTenantMap);
     }
 
     private void UpdateTenantMap()
     {
         var tenants =
-            from wegwijzerTenant in sectie.GetChildren()
+            from wegwijzerTenant in _sectie.GetChildren()
             from environment in wegwijzerTenant.GetSection(EnvironmentsSectie).GetChildren()
             from gemeenteTenantSectie in environment.GetSection(GemeentenSectie).GetChildren()
             let defaultTenant = environment
                 .GetSection(DefaultsSectie)
-                .Get<TTenantInfo>(options => options.BindNonPublicProperties = true) ?? new TTenantInfo()
+                .Get<TTenantInfo>(options => options.BindNonPublicProperties = true)
             let specificTenant = OverrideDefaults(defaultTenant, gemeenteTenantSectie)
             select specificTenant with
             {
@@ -57,7 +57,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
                 GemeenteCode = gemeenteTenantSectie.Key,
             };
 
-        tenantMap = tenants.ToDictionary(
+        _tenantMap = tenants.ToDictionary(
             x => x.Identifier?.ToLower() ?? throw new ArgumentException("Tenant without Identifier found in config."),
             x => x
         );
@@ -75,7 +75,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     public Task<TTenantInfo?> GetAsync(string id)
     {
         ArgumentNullException.ThrowIfNull(id);
-        return Task.FromResult(tenantMap?.GetValueOrDefault(id.ToLower(CultureInfo.InvariantCulture)));
+        return Task.FromResult(_tenantMap?.GetValueOrDefault(id.ToLower(CultureInfo.InvariantCulture)));
     }
 
     public async Task<IEnumerable<TTenantInfo>> GetAllAsync()
@@ -90,7 +90,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
 
     private List<TTenantInfo> GetAll()
     {
-        return tenantMap?.Select(x => x.Value).ToList() ?? [];
+        return _tenantMap?.Select(x => x.Value).ToList() ?? [];
     }
 
     public Task<TTenantInfo?> GetByIdentifierAsync(string identifier)
@@ -102,7 +102,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     {
         ArgumentNullException.ThrowIfNull(identifier);
 
-        return tenantMap?.GetValueOrDefault(identifier.ToLower(CultureInfo.InvariantCulture));
+        return _tenantMap?.GetValueOrDefault(identifier.ToLower(CultureInfo.InvariantCulture));
     }
     
     public Task<bool> AddAsync(TTenantInfo tenantInfo)
