@@ -1,5 +1,5 @@
 ﻿using System.Collections.Concurrent;
-using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -11,25 +11,29 @@ namespace Wigo4it.MultiTenant.NserviceBus.Tests;
 [TestFixture]
 public class RaceConditionTests
 {
-    private ServiceProvider? services;
+    private ServiceProvider? _services;
 
-    private readonly List<Wigo4itTenantInfo> expectedValues =
+    private readonly List<Wigo4itTenantInfo> _expectedValues =
     [
         new()
         {
+            Identifier = "9446-xyz-0599",
             Name = "Tenant 0599",
             Hoofdgemeente = "H0599",
             GemeenteCode = "0599",
             TenantCode = "9446",
             EnvironmentName = "xyz",
+            ConnectionString = "someConnectionString"
         },
         new()
         {
+            Identifier = "9446-xyz-0518",
             Name = "Tenant 0518",
             Hoofdgemeente = "H0518",
             GemeenteCode = "0518",
             TenantCode = "9446",
             EnvironmentName = "xyz",
+            ConnectionString = "someConnectionString2"
         },
     ];
 
@@ -45,10 +49,12 @@ public class RaceConditionTests
             ["Tenants:9446:Environments:xyz:Gemeenten:0599:name"] = "Tenant 0599",
             ["Tenants:9446:Environments:xyz:Gemeenten:0599:gemeentecode"] = "0599",
             ["Tenants:9446:Environments:xyz:Gemeenten:0599:hoofdgemeente"] = "H0599",
+            ["Tenants:9446:Environments:xyz:Gemeenten:0599:connectionstring"] = "someConnectionString",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:identifier"] = "9446-xyz-0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:name"] = "Tenant 0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:hoofdgemeente"] = "H0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:gemeentecode"] = "0518",
+            ["Tenants:9446:Environments:xyz:Gemeenten:0518:connectionstring"] = "someConnectionString2"
         };
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
         var serviceCollection = new ServiceCollection();
@@ -62,13 +68,13 @@ public class RaceConditionTests
                 opt.GemeenteCode = tenant.GemeenteCode;
             });
         
-        services = serviceCollection.BuildServiceProvider();
+        _services = serviceCollection.BuildServiceProvider();
     }
 
     [TearDown]
     public void TearDown()
     {
-        services?.Dispose();
+        _services?.Dispose();
     }
 
     [Test]
@@ -101,12 +107,12 @@ public class RaceConditionTests
             new ParallelOptions { MaxDegreeOfParallelism = concurrencyLevel },
             async (i, _) =>
             {
-                var tenant = expectedValues[i % expectedValues.Count];
+                var tenant = _expectedValues[i % _expectedValues.Count];
                 await ResolveTenantAndExecute(
                     tenant,
                     () =>
                     {
-                        using var scope = services!.CreateScope();
+                        using var scope = _services!.CreateScope();
                         var options = scope.ServiceProvider.GetRequiredService<TOptions>();
 
                         var value = tester(options);
@@ -130,7 +136,7 @@ public class RaceConditionTests
 
     private async Task ResolveTenantAndExecute(Wigo4itTenantInfo tenant, Func<Task> next)
     {
-        var incomingContext = new MessageContextWithServiceProvider(services!);
+        var incomingContext = new MessageContextWithServiceProvider(_services!);
 
         incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerTenantCode, tenant.TenantCode);
         incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerEnvironmentName, tenant.EnvironmentName);

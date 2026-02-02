@@ -11,36 +11,33 @@ public record Wigo4itTenantInfo : ITenantInfo
     /// <summary>
     /// Deze gebruiken we zelf niet, is slechts verplicht vanuit ITenantInfo
     /// </summary>
-    string? ITenantInfo.Id
-    {
-        get => Identifier;
-        set => Identifier = value;
-    }
+    string ITenantInfo.Id => Identifier;
 
     /// <summary>
     /// {Wegwijzer TenantCode}-{Wegwijzer EnvironmentName}-{GemeenteCode}
     /// </summary>
-    public string? Identifier { get; set; }
+    public required string Identifier { get; set; }
     public string? Name { get; set; }
 
-    // Onderstaande properties kunnen niet op required gezet worden, omdat Finbuckle een parameterloze
-    // constructor vereist. We garanderen echter voor onze consumers dat alle properties altijd gevuld zijn.
-    public string ConnectionString { get; set; } = null!;
+    /// <summary>
+    /// De connectionstring naar de database voor deze tenant
+    /// </summary>
+    public required string ConnectionString { get; set; }
 
     /// <summary>
     /// De 4-cijferige tenantcode
     /// </summary>
-    public string TenantCode { get; set; } = null!;
+    public required string TenantCode { get; set; }
 
     /// <summary>
     /// De naam van de omgeving in de wegwijzer
     /// </summary>
-    public string EnvironmentName { get; set; } = null!;
+    public required string EnvironmentName { get; set; }
 
-    public string GemeenteCode { get; set; } = null!;
+    public required string GemeenteCode { get; set; }
 
     /// <summary>
     /// Viercijferige gemeentecode
     /// </summary>
-    public string Hoofdgemeente { get; set; } = null!;
+    public required string Hoofdgemeente { get; set; }
 }
