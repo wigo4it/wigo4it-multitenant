@@ -20,9 +20,12 @@ public class RaceConditionTests
             Identifier = "9446-xyz-0599",
             Name = "Tenant 0599",
             Hoofdgemeente = "H0599",
-            GemeenteCode = "0599",
-            TenantCode = "9446",
-            EnvironmentName = "xyz",
+            Options = new Wigo4itTenantOptions
+            {
+                GemeenteCode = "0599",
+                TenantCode = "9446",
+                EnvironmentName = "xyz",
+            },
             ConnectionString = "someConnectionString",
         },
         new()
@@ -30,9 +33,12 @@ public class RaceConditionTests
             Identifier = "9446-xyz-0518",
             Name = "Tenant 0518",
             Hoofdgemeente = "H0518",
-            GemeenteCode = "0518",
-            TenantCode = "9446",
-            EnvironmentName = "xyz",
+            Options = new Wigo4itTenantOptions
+            {
+                GemeenteCode = "0518",
+                TenantCode = "9446",
+                EnvironmentName = "xyz",
+            },
             ConnectionString = "someConnectionString2",
         },
     ];
@@ -67,7 +73,7 @@ public class RaceConditionTests
                     opt.Name = tenant.Name;
                     opt.Identifier = tenant.Identifier;
                     opt.Hoofdgemeente = tenant.Hoofdgemeente;
-                    opt.GemeenteCode = tenant.GemeenteCode;
+                    opt.GemeenteCode = tenant.Options.GemeenteCode;
                 }
             );
 
@@ -141,9 +147,9 @@ public class RaceConditionTests
     {
         var incomingContext = new MessageContextWithServiceProvider(_services!);
 
-        incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerTenantCode, tenant.TenantCode);
-        incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerEnvironmentName, tenant.EnvironmentName);
-        incomingContext.Message.Headers.Add(MultitenancyHeaders.GemeenteCode, tenant.GemeenteCode);
+        incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerTenantCode, tenant.Options.TenantCode);
+        incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerEnvironmentName, tenant.Options.EnvironmentName);
+        incomingContext.Message.Headers.Add(MultitenancyHeaders.GemeenteCode, tenant.Options.GemeenteCode);
 
         await new MultiTenantBehavior(_ => { }).Invoke(incomingContext, next);
     }

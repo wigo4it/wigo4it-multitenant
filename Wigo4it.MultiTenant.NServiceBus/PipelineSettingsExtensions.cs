@@ -10,8 +10,6 @@ public static class PipelineSettingsExtensions
         Action<IMultiTenantContext>? onMultiTenantContextResolved = null
     )
     {
-        endpointConfiguration.RegisterMessageMutator(new HeaderForwarder());
-
         endpointConfiguration.Pipeline.Register(
             _ => new MultiTenantBehavior(onMultiTenantContextResolved),
             "Enables Finbuckle Multi-Tenancy support in NServiceBus message handling."

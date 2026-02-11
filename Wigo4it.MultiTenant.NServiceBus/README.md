@@ -19,6 +19,7 @@ using Wigo4it.MultiTenant.NServiceBus;
 builder.Services.AddWigo4itMultiTenant<MyTenantInfo>(
     NServiceBusTenantIdResolver.DetermineTenantIdentifier
 );
+builder.Services.AddWigo4itMultiTenantNServiceBus();
 
 builder.Services.ConfigurePerTenant<MyTenantOptions, MyTenantInfo>((options, tenant) =>
 {

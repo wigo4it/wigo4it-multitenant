@@ -53,9 +53,12 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
             let specificTenant = OverrideDefaults(defaultTenant, gemeenteTenantSectie)
             select specificTenant with
             {
-                EnvironmentName = environment.Key,
-                TenantCode = wegwijzerTenant.Key,
-                GemeenteCode = gemeenteTenantSectie.Key,
+                Options = new Wigo4itTenantOptions
+                {
+                    EnvironmentName = environment.Key,
+                    TenantCode = wegwijzerTenant.Key,
+                    GemeenteCode = gemeenteTenantSectie.Key,
+                },
             };
 
         _tenantMap = tenants.ToDictionary(

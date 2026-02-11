@@ -23,18 +23,5 @@ public record Wigo4itTenantInfo : ITenantInfo
     /// </summary>
     public required string ConnectionString { get; set; }
 
-    /// <summary>
-    /// De 4-cijferige tenantcode in de wegwijzer
-    /// </summary>
-    public required string TenantCode { get; set; }
-
-    /// <summary>
-    /// De naam van de omgeving in de wegwijzer
-    /// </summary>
-    public required string EnvironmentName { get; set; }
-
-    /// <summary>
-    /// Viercijferige gemeentecode van de (rand)gemeente
-    /// </summary>
-    public required string GemeenteCode { get; set; }
+    public required Wigo4itTenantOptions Options { get; init; }
 }

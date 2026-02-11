@@ -46,9 +46,9 @@ public class DictionaryConfigurationStoreTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(tenant0599.GemeenteCode, Is.EqualTo("0599"));
-            Assert.That(tenant0599.EnvironmentName, Is.EqualTo("xyz"));
-            Assert.That(tenant0599.TenantCode, Is.EqualTo("9446"));
+            Assert.That(tenant0599.Options.GemeenteCode, Is.EqualTo("0599"));
+            Assert.That(tenant0599.Options.EnvironmentName, Is.EqualTo("xyz"));
+            Assert.That(tenant0599.Options.TenantCode, Is.EqualTo("9446"));
         }
 
         var tenant0606 = await _sut.GetByIdentifierAsync("9446-xyz-0606");
@@ -56,9 +56,9 @@ public class DictionaryConfigurationStoreTests
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(tenant0606.GemeenteCode, Is.EqualTo("0606"));
-            Assert.That(tenant0606.EnvironmentName, Is.EqualTo("xyz"));
-            Assert.That(tenant0606.TenantCode, Is.EqualTo("9446"));
+            Assert.That(tenant0606.Options.GemeenteCode, Is.EqualTo("0606"));
+            Assert.That(tenant0606.Options.EnvironmentName, Is.EqualTo("xyz"));
+            Assert.That(tenant0606.Options.TenantCode, Is.EqualTo("9446"));
         }
     }
 
@@ -224,7 +224,7 @@ public class DictionaryConfigurationStoreTests
         using (Assert.EnterMultipleScope())
         {
             Assert.That(tenantList, Has.Count.EqualTo(2));
-            Assert.That(tenantList.Select(t => t.GemeenteCode), Is.EquivalentTo(["0599", "0606"]));
+            Assert.That(tenantList.Select(t => t.Options.GemeenteCode), Is.EquivalentTo(["0599", "0606"]));
         }
     }
 }

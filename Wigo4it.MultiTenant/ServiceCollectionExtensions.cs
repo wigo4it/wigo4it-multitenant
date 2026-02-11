@@ -5,25 +5,31 @@ namespace Wigo4it.MultiTenant;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(
-        this IServiceCollection services,
-        Func<object, Task<string?>> tenantIdentifierResolver
-    )
-        where TTenantInfo : Wigo4itTenantInfo
+    extension(IServiceCollection services)
     {
-        services
-            .AddMultiTenant<TTenantInfo>()
-            .WithDelegateStrategy(tenantIdentifierResolver)
-            .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Singleton);
+        public IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(Func<object, Task<string?>> tenantIdentifierResolver)
+            where TTenantInfo : Wigo4itTenantInfo
+        {
+            services
+                .AddMultiTenant<TTenantInfo>()
+                .WithDelegateStrategy(tenantIdentifierResolver)
+                .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Singleton);
 
-        return services;
-    }
+            services.ConfigurePerTenant<Wigo4itTenantOptions, TTenantInfo>(
+                (o, t) =>
+                {
+                    o.TenantCode = t.Options.TenantCode;
+                    o.EnvironmentName = t.Options.EnvironmentName;
+                    o.GemeenteCode = t.Options.GemeenteCode;
+                }
+            );
 
-    public static IServiceCollection AddWigo4itMultiTenant(
-        this IServiceCollection services,
-        Func<object, Task<string?>> tenantIdentifierResolver
-    )
-    {
-        return services.AddWigo4itMultiTenant<Wigo4itTenantInfo>(tenantIdentifierResolver);
+            return services;
+        }
+
+        public IServiceCollection AddWigo4itMultiTenant(Func<object, Task<string?>> tenantIdentifierResolver)
+        {
+            return services.AddWigo4itMultiTenant<Wigo4itTenantInfo>(tenantIdentifierResolver);
+        }
     }
 }

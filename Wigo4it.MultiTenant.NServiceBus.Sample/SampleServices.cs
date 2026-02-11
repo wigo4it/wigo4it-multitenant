@@ -7,6 +7,7 @@ public static class SampleServices
     public static IServiceCollection ConfigureSampleServices(this IServiceCollection services)
     {
         services.AddWigo4itMultiTenant<SampleTenantInfo>(NServiceBusTenantIdResolver.DetermineTenantIdentifier);
+        services.AddWigo4itMultiTenantNServiceBus();
 
         services.ConfigurePerTenant<SampleTenantOptions, SampleTenantInfo>(
             (o, t) =>
