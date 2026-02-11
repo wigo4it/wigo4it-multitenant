@@ -8,10 +8,12 @@ public static class SampleServices
     {
         services.AddWigo4itMultiTenant<SampleTenantInfo>(NServiceBusTenantIdResolver.DetermineTenantIdentifier);
 
-        services.ConfigurePerTenant<SampleTenantOptions, SampleTenantInfo>((o, t) =>
-        {
-            o.CustomSetting = t.CustomSetting;
-        });
+        services.ConfigurePerTenant<SampleTenantOptions, SampleTenantInfo>(
+            (o, t) =>
+            {
+                o.CustomSetting = t.CustomSetting;
+            }
+        );
 
         return services;
     }

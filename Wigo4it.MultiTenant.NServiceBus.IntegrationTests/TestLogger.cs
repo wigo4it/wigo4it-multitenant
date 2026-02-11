@@ -8,7 +8,7 @@ namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
 internal class TestLoggerProvider : ILoggerProvider
 {
     private readonly List<LogEntry> _logs = new();
-    
+
     public IReadOnlyList<LogEntry> Logs => _logs.AsReadOnly();
 
     public ILogger CreateLogger(string categoryName)
@@ -16,9 +16,7 @@ internal class TestLoggerProvider : ILoggerProvider
         return new TestLogger(categoryName, _logs);
     }
 
-    public void Dispose()
-    {
-    }
+    public void Dispose() { }
 }
 
 /// <summary>
@@ -26,7 +24,8 @@ internal class TestLoggerProvider : ILoggerProvider
 /// </summary>
 internal class TestLogger(string category, List<LogEntry> logs) : ILogger
 {
-    public IDisposable? BeginScope<TState>(TState state) where TState : notnull
+    public IDisposable? BeginScope<TState>(TState state)
+        where TState : notnull
     {
         return null;
     }
@@ -41,13 +40,10 @@ internal class TestLogger(string category, List<LogEntry> logs) : ILogger
         EventId eventId,
         TState state,
         Exception? exception,
-        Func<TState, Exception?, string> formatter)
+        Func<TState, Exception?, string> formatter
+    )
     {
-        logs.Add(new LogEntry
-        {
-            Category = category,
-            Message = formatter(state, exception)
-        });
+        logs.Add(new LogEntry { Category = category, Message = formatter(state, exception) });
     }
 }
 

@@ -25,12 +25,14 @@ app.MapPost(
             new SampleMessage
             {
                 Content = $"Sample message for {tenantCode}-{environmentName}-{gemeenteCode}",
-                CreatedAtUtc = DateTime.UtcNow
+                CreatedAtUtc = DateTime.UtcNow,
             },
-            sendOptions);
+            sendOptions
+        );
 
         return Results.Accepted();
-    });
+    }
+);
 
 app.Run();
 

@@ -20,7 +20,8 @@ namespace Wigo4it.MultiTenant;
 /// Deze code is grotendeels geinspireerd door
 /// https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/eafec795fe93cf6e77a855e5cae7ea124d1a5557/src/Finbuckle.MultiTenant/Stores/ConfigurationStore.cs
 /// </summary>
-public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo> where TTenantInfo : Wigo4itTenantInfo
+public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo>
+    where TTenantInfo : Wigo4itTenantInfo
 {
     private readonly IConfigurationSection _sectie;
     private Dictionary<string, TTenantInfo>? _tenantMap;
@@ -82,7 +83,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     {
         return await Task.FromResult(GetAll());
     }
-    
+
     public async Task<IEnumerable<TTenantInfo>> GetAllAsync(int take, int skip)
     {
         return await Task.FromResult(GetAll().Skip(skip).Take(take));
@@ -104,7 +105,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
 
         return _tenantMap?.GetValueOrDefault(identifier.ToLower(CultureInfo.InvariantCulture));
     }
-    
+
     public Task<bool> AddAsync(TTenantInfo tenantInfo)
     {
         throw new NotSupportedException();
@@ -124,7 +125,5 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
 public class DictionaryConfigurationStore : DictionaryConfigurationStore<Wigo4itTenantInfo>
 {
     public DictionaryConfigurationStore(IConfiguration configuration)
-        : base(configuration)
-    {
-    }
+        : base(configuration) { }
 }

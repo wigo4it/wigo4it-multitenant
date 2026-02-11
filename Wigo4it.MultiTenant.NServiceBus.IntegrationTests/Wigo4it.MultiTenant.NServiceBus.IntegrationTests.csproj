@@ -1,30 +1,28 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
 
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <LangVersion>latest</LangVersion>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <IsPackable>false</IsPackable>
-    </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="NUnit" />
+    <PackageReference Include="NUnit.Analyzers" />
+    <PackageReference Include="NUnit3TestAdapter" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" />
+    <PackageReference Include="NServiceBus.Testing" />
+    <PackageReference Include="NServiceBus.Extensions.IntegrationTesting" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <PackageReference Include="coverlet.collector"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk"/>
-        <PackageReference Include="NUnit"/>
-        <PackageReference Include="NUnit.Analyzers"/>
-        <PackageReference Include="NUnit3TestAdapter"/>
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing"/>
-        <PackageReference Include="NServiceBus.Testing"/>
-        <PackageReference Include="NServiceBus.Extensions.IntegrationTesting" />
-    </ItemGroup>
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
 
-    <ItemGroup>
-        <Using Include="NUnit.Framework"/>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\Wigo4it.MultiTenant.NServiceBus.Sample\Wigo4it.MultiTenant.NServiceBus.Sample.csproj" />
-    </ItemGroup>
-
+  <ItemGroup>
+    <ProjectReference Include="..\Wigo4it.MultiTenant.NServiceBus.Sample\Wigo4it.MultiTenant.NServiceBus.Sample.csproj" />
+  </ItemGroup>
 </Project>

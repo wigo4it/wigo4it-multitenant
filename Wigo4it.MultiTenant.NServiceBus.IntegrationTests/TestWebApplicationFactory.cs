@@ -1,8 +1,8 @@
 using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Extensions.IntegrationTesting;
@@ -18,14 +18,14 @@ namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
 public class TestWebApplicationFactory : WebApplicationFactory<Program>
 {
     private readonly Action<IConfigurationBuilder>? _configureConfiguration;
-    
+
     internal readonly TestLoggerProvider Logger = new();
-    
+
     public TestWebApplicationFactory(Action<IConfigurationBuilder>? configureConfiguration = null)
     {
         _configureConfiguration = configureConfiguration;
     }
-    
+
     public TestWebApplicationFactory WithConfiguration(Action<IConfigurationBuilder> configureConfiguration)
     {
         return new TestWebApplicationFactory(configureConfiguration);
@@ -37,7 +37,7 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
             .UseNServiceBus(ctx =>
             {
                 var endpoint = SampleEndpointConfiguration.Create(ctx);
-                
+
                 // Configure the endpoint with test-friendly defaults
                 endpoint.ConfigureTestEndpoint();
 

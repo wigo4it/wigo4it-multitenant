@@ -4,7 +4,8 @@ using NServiceBus.Pipeline;
 
 namespace Wigo4it.MultiTenant.NServiceBus;
 
-public class MultiTenantBehavior(Action<IMultiTenantContext>? onMultiTenantContextResolved) : Behavior<IIncomingPhysicalMessageContext>
+public class MultiTenantBehavior(Action<IMultiTenantContext>? onMultiTenantContextResolved)
+    : Behavior<IIncomingPhysicalMessageContext>
 {
     public override async Task Invoke(IIncomingPhysicalMessageContext context, Func<Task> next)
     {

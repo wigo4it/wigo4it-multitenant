@@ -23,7 +23,7 @@ public class RaceConditionTests
             GemeenteCode = "0599",
             TenantCode = "9446",
             EnvironmentName = "xyz",
-            ConnectionString = "someConnectionString"
+            ConnectionString = "someConnectionString",
         },
         new()
         {
@@ -33,7 +33,7 @@ public class RaceConditionTests
             GemeenteCode = "0518",
             TenantCode = "9446",
             EnvironmentName = "xyz",
-            ConnectionString = "someConnectionString2"
+            ConnectionString = "someConnectionString2",
         },
     ];
 
@@ -54,20 +54,23 @@ public class RaceConditionTests
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:name"] = "Tenant 0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:hoofdgemeente"] = "H0518",
             ["Tenants:9446:Environments:xyz:Gemeenten:0518:gemeentecode"] = "0518",
-            ["Tenants:9446:Environments:xyz:Gemeenten:0518:connectionstring"] = "someConnectionString2"
+            ["Tenants:9446:Environments:xyz:Gemeenten:0518:connectionstring"] = "someConnectionString2",
         };
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<IConfiguration>(configuration);
-        serviceCollection.AddWigo4itMultiTenant<TestTenantInfo>(NServiceBusTenantIdResolver.DetermineTenantIdentifier)
-            .ConfigurePerTenant<TestOptions, TestTenantInfo>((opt, tenant) =>
-            {
-                opt.Name = tenant.Name;
-                opt.Identifier = tenant.Identifier;
-                opt.Hoofdgemeente = tenant.Hoofdgemeente;
-                opt.GemeenteCode = tenant.GemeenteCode;
-            });
-        
+        serviceCollection
+            .AddWigo4itMultiTenant<TestTenantInfo>(NServiceBusTenantIdResolver.DetermineTenantIdentifier)
+            .ConfigurePerTenant<TestOptions, TestTenantInfo>(
+                (opt, tenant) =>
+                {
+                    opt.Name = tenant.Name;
+                    opt.Identifier = tenant.Identifier;
+                    opt.Hoofdgemeente = tenant.Hoofdgemeente;
+                    opt.GemeenteCode = tenant.GemeenteCode;
+                }
+            );
+
         _services = serviceCollection.BuildServiceProvider();
     }
 

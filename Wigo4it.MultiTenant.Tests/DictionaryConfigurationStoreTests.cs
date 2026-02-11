@@ -148,7 +148,7 @@ public class DictionaryConfigurationStoreTests
     {
         var tenants = await _sut.GetAllAsync(take: 1, skip: 0);
         var tenantList = tenants.ToList();
-        
+
         Assert.That(tenantList, Has.Count.EqualTo(1));
     }
 
@@ -157,7 +157,7 @@ public class DictionaryConfigurationStoreTests
     {
         var firstPage = await _sut.GetAllAsync(take: 1, skip: 0);
         var secondPage = await _sut.GetAllAsync(take: 1, skip: 1);
-        
+
         var firstTenant = firstPage.FirstOrDefault();
         var secondTenant = secondPage.FirstOrDefault();
         using (Assert.EnterMultipleScope())
@@ -173,7 +173,7 @@ public class DictionaryConfigurationStoreTests
     {
         var tenants = await _sut.GetAllAsync(take: 10, skip: 0);
         var tenantList = tenants.ToList();
-        
+
         Assert.That(tenantList, Has.Count.EqualTo(2));
     }
 
@@ -182,7 +182,7 @@ public class DictionaryConfigurationStoreTests
     {
         var tenants = await _sut.GetAllAsync(take: 10, skip: 10);
         var tenantList = tenants.ToList();
-        
+
         Assert.That(tenantList, Is.Empty);
     }
 
@@ -191,7 +191,7 @@ public class DictionaryConfigurationStoreTests
     {
         var tenants = await _sut.GetAllAsync(take: 0, skip: 0);
         var tenantList = tenants.ToList();
-        
+
         Assert.That(tenantList, Is.Empty);
     }
 
@@ -200,7 +200,7 @@ public class DictionaryConfigurationStoreTests
     {
         var tenants = await _sut.GetAllAsync(take: 10, skip: 1);
         var tenantList = tenants.ToList();
-        
+
         Assert.That(tenantList, Has.Count.EqualTo(1));
     }
 
@@ -209,9 +209,9 @@ public class DictionaryConfigurationStoreTests
     {
         _configuration = new ConfigurationBuilder().Build();
         var noTenantsSut = new DictionaryConfigurationStore(_configuration);
-        
+
         var tenants = await noTenantsSut.GetAllAsync(take: 10, skip: 0);
-        
+
         Assert.That(tenants, Is.Empty);
     }
 

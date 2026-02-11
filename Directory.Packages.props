@@ -9,7 +9,7 @@
     <!-- Library Dependencies - Use version ranges [version,version+1) for flexibility -->
     <PackageVersion Include="Finbuckle.MultiTenant" Version="[10.0.2,11.0.0)" />
     <PackageVersion Include="NServiceBus" Version="[9.2.3,10.0.0)" />
-    
+
     <!-- Test Dependencies - Use exact versions for reproducible test builds -->
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
     <PackageVersion Include="Microsoft.AspNetCore.Mvc.Testing" Version="10.0.2" />
