@@ -1,4 +1,5 @@
-﻿using Finbuckle.MultiTenant.Extensions;
+﻿using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Wigo4it.MultiTenant;
@@ -10,10 +11,22 @@ public static class ServiceCollectionExtensions
         public IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(Func<object, Task<string?>> tenantIdentifierResolver)
             where TTenantInfo : Wigo4itTenantInfo
         {
-            services
+            return services.AddWigo4itMultiTenant<TTenantInfo>(builder =>
+            {
+                builder.WithDelegateStrategy(tenantIdentifierResolver);
+            });
+        }
+
+        public IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(
+            Action<MultiTenantBuilder<TTenantInfo>> configureMultitenantBuilder
+        )
+            where TTenantInfo : Wigo4itTenantInfo
+        {
+            var builder = services
                 .AddMultiTenant<TTenantInfo>()
-                .WithDelegateStrategy(tenantIdentifierResolver)
                 .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Singleton);
+
+            configureMultitenantBuilder(builder);
 
             services.ConfigurePerTenant<Wigo4itTenantOptions, TTenantInfo>(
                 (o, t) =>

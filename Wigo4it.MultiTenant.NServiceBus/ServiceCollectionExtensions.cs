@@ -9,7 +9,7 @@ public static class ServiceCollectionExtensions
     {
         public IServiceCollection AddWigo4itMultiTenantNServiceBus()
         {
-            services.AddScoped<IMutateOutgoingMessages, HeaderForwarder>();
+            services.AddTransient<IMutateOutgoingMessages, OutgoingTenantHeadersMutator>();
 
             return services;
         }

@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Wigo4it.MultiTenant.NServiceBus.Sample;
 using static NServiceBus.Extensions.IntegrationTesting.EndpointFixture;
 
@@ -27,21 +26,11 @@ public class MultiTenantMessageTests
         const string gemeenteCode = "0599";
         const string expectedSettingValue = "Default setting at Environment level";
 
-        var sendOptions = new SendOptions();
-        sendOptions.RouteToThisEndpoint();
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerTenantCode, tenantCode);
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerEnvironmentName, environmentName);
-        sendOptions.SetHeader(MultitenancyHeaders.GemeenteCode, gemeenteCode);
-
-        var message = new SampleMessage
-        {
-            Content = $"Sample message for {tenantCode}-{environmentName}-{gemeenteCode}",
-            CreatedAtUtc = DateTime.UtcNow,
-        };
-
         factory = new TestWebApplicationFactory();
-        var messageSession = factory.Services.GetRequiredService<IMessageSession>();
-        await ExecuteAndWaitForHandled<SampleMessage>(() => messageSession.Send(message, sendOptions));
+        var client = factory.CreateClient();
+        await ExecuteAndWaitForHandled<SampleMessage>(() =>
+            client.PostAsync($"/send/{tenantCode}-{environmentName}-{gemeenteCode}", null)
+        );
 
         // Controleer dat de aangepaste instellingswaarde is geregistreerd
         var sampleMessageHandlerLogs = factory
@@ -72,20 +61,14 @@ public class MultiTenantMessageTests
             cfg.AddInMemoryCollection(overrides);
         });
 
-        var sendOptions = new SendOptions();
-        sendOptions.RouteToThisEndpoint();
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerTenantCode, tenantCode);
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerEnvironmentName, environmentName);
-        sendOptions.SetHeader(MultitenancyHeaders.GemeenteCode, gemeenteCode);
-
         var message = new SampleMessage
         {
             Content = $"Sample message for {tenantCode}-{environmentName}-{gemeenteCode}",
             CreatedAtUtc = DateTime.UtcNow,
         };
 
-        var messageSession = factory.Services.GetRequiredService<IMessageSession>();
-        await ExecuteAndWaitForHandled<SampleMessage>(() => messageSession.Send(message, sendOptions));
+        var request = factory.Server.CreateRequest($"/send/{tenantCode}-{environmentName}-{gemeenteCode}");
+        await ExecuteAndWaitForHandled<SampleMessage>(request.PostAsync);
 
         // Controleer dat de aangepaste instellingswaarde is geregistreerd
         var sampleMessageHandlerLogs = factory
