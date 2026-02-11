@@ -63,6 +63,11 @@ steps:
     inputs:
       command: restore
 
+  - script: |
+      dotnet tool restore
+      dotnet csharpier check .
+    displayName: 'Check formatting (CSharpier)'
+
   - task: DotNetCoreCLI@2
     displayName: 'Build solution'
     inputs:

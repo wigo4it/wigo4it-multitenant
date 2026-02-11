@@ -28,3 +28,4 @@ Dit document beschrijft hoe we branches beheren en hoe we de major versie verhog
 - Voeg altijd het juiste `+semver:` token toe wanneer het standaard increment niet klopt.
 - Houd werk-branches kortlevend; merge naar main zodra het werk klaar is.
 - Controleer pipelines na merges; een mislukte build betekent geen betrouwbare versie.
+- We gebruiken [CSharpier](https://csharpier.com/) om een consistente codestijl af te dwingen.
