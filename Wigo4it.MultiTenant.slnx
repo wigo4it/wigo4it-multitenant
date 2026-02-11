@@ -1,0 +1,16 @@
+<Solution>
+  <Folder Name="/Samples/">
+    <Project Path="Wigo4it.MultiTenant.NServiceBus.Sample/Wigo4it.MultiTenant.NServiceBus.Sample.csproj" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path="Directory.Packages.props" />
+    <File Path="GitVersion.yml" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="Wigo4it.MultiTenant.NServiceBus.IntegrationTests/Wigo4it.MultiTenant.NServiceBus.IntegrationTests.csproj" />
+    <Project Path="Wigo4it.MultiTenant.NserviceBus.Tests/Wigo4it.MultiTenant.NserviceBus.Tests.csproj" />
+    <Project Path="Wigo4it.MultiTenant.Tests/Wigo4it.MultiTenant.Tests.csproj" />
+  </Folder>
+  <Project Path="Wigo4it.MultiTenant.NServiceBus/Wigo4it.MultiTenant.NServiceBus.csproj" />
+  <Project Path="Wigo4it.MultiTenant/Wigo4it.MultiTenant.csproj" />
+</Solution>

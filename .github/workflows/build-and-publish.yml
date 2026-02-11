@@ -55,6 +55,11 @@ jobs:
       
       - name: Restore dependencies
         run: dotnet restore
+
+      - name: Check formatting (CSharpier)
+        run: |
+          dotnet tool restore
+          dotnet csharpier check .
       
       - name: Build solution
         run: dotnet build --configuration ${{ env.CONFIGURATION }} --no-restore /p:Version=${{ steps.gitversion.outputs.assemblySemVer }} /p:AssemblyVersion=${{ steps.gitversion.outputs.assemblySemVer }} /p:FileVersion=${{ steps.gitversion.outputs.assemblySemFileVer }} /p:InformationalVersion=${{ steps.gitversion.outputs.informationalVersion }}

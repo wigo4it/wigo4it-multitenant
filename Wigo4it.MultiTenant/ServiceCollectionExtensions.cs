@@ -1,25 +1,48 @@
-﻿using Finbuckle.MultiTenant.Extensions;
+﻿using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Wigo4it.MultiTenant;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(
-        this IServiceCollection services,
-        Func<object, Task<string?>> tenantIdentifierResolver) where TTenantInfo: Wigo4itTenantInfo
+    extension(IServiceCollection services)
     {
-        services.AddMultiTenant<TTenantInfo>()
-            .WithDelegateStrategy(tenantIdentifierResolver)
-            .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Singleton);
+        public IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(Func<object, Task<string?>> tenantIdentifierResolver)
+            where TTenantInfo : Wigo4itTenantInfo
+        {
+            return services.AddWigo4itMultiTenant<TTenantInfo>(builder =>
+            {
+                builder.WithDelegateStrategy(tenantIdentifierResolver);
+            });
+        }
 
-        return services;
-    }
+        public IServiceCollection AddWigo4itMultiTenant<TTenantInfo>(
+            Action<MultiTenantBuilder<TTenantInfo>> configureMultitenantBuilder
+        )
+            where TTenantInfo : Wigo4itTenantInfo
+        {
+            var builder = services
+                .AddMultiTenant<TTenantInfo>()
+                .WithStore<DictionaryConfigurationStore<TTenantInfo>>(ServiceLifetime.Singleton);
 
-    public static IServiceCollection AddWigo4itMultiTenant(
-        this IServiceCollection services,
-        Func<object, Task<string?>> tenantIdentifierResolver)
-    {
-        return services.AddWigo4itMultiTenant<Wigo4itTenantInfo>(tenantIdentifierResolver);
+            configureMultitenantBuilder(builder);
+
+            services.ConfigurePerTenant<Wigo4itTenantOptions, TTenantInfo>(
+                (o, t) =>
+                {
+                    o.TenantCode = t.Options.TenantCode;
+                    o.EnvironmentName = t.Options.EnvironmentName;
+                    o.GemeenteCode = t.Options.GemeenteCode;
+                }
+            );
+
+            return services;
+        }
+
+        public IServiceCollection AddWigo4itMultiTenant(Func<object, Task<string?>> tenantIdentifierResolver)
+        {
+            return services.AddWigo4itMultiTenant<Wigo4itTenantInfo>(tenantIdentifierResolver);
+        }
     }
 }

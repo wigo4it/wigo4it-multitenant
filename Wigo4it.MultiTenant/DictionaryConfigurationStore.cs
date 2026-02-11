@@ -7,20 +7,21 @@ namespace Wigo4it.MultiTenant;
 
 /// <summary>
 /// We willen afwijken van de verplichte structuur uit de Finbuckle.MultiTenant library. Deze verwacht namelijk een lijst/array in IConfiguration.
-/// Om dat daar in te vullen is een volgnummer nodig, echter hebben we vanuit een Wegwijzer deployment maar zicht hebben op 1 omgeving, en kunnen
-/// we dus niet een volgnummer bepalen.
+/// Om een array in een keyvault secret of env variable in te vullen is een volgnummer nodig, echter hebben we vanuit een Wegwijzer deployment
+/// maar zicht hebben op 1 omgeving, en kunnen we dus niet het volgnummer bepalen.
 ///
 /// Daarnaast willen we getrapt waarden in kunnen stellen. Dit betekent dat we instellingen op omgevingniveau of op gemeenteniveau willen
 /// kunnen bepalen. Zo houden we het aantal instellingen beperkt. Het beperken van dit aantal is belangrijk omdat AddAzureConfiguration
 /// bij het opstarten alle keys wilt inlezen. Dit zou dan waarschijnlijk leiden tot throttling / failed starts vanuit Azure.
 ///
-/// In de wegwijzer en deze applicatie heeft het woord "Tenant" verschillende betekenissen. In de Wegwijzer is een tenant
-/// een G4 gemeente / Wigo4it. In de Financien service is `FinancienTenantInfo` een (rand)gemeente, in deze class wordt de vertaling gedaan.
+/// In de wegwijzer en deze library heeft het woord "Tenant" verschillende betekenissen. In de Wegwijzer is een tenant
+/// een G4 gemeente / Wigo4it. In deze library is `Wigo4itTenantInfo` een (rand)gemeente, in deze class wordt de vertaling gedaan.
 ///
 /// Deze code is grotendeels geinspireerd door
-/// https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/main/src/Finbuckle.MultiTenant/Stores/ConfigurationStore/ConfigurationStore.cs
+/// https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/eafec795fe93cf6e77a855e5cae7ea124d1a5557/src/Finbuckle.MultiTenant/Stores/ConfigurationStore.cs
 /// </summary>
-public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo> where TTenantInfo : Wigo4itTenantInfo
+public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo>
+    where TTenantInfo : Wigo4itTenantInfo
 {
     private readonly IConfigurationSection _sectie;
     private Dictionary<string, TTenantInfo>? _tenantMap;
@@ -52,9 +53,12 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
             let specificTenant = OverrideDefaults(defaultTenant, gemeenteTenantSectie)
             select specificTenant with
             {
-                EnvironmentName = environment.Key,
-                TenantCode = wegwijzerTenant.Key,
-                GemeenteCode = gemeenteTenantSectie.Key,
+                Options = new Wigo4itTenantOptions
+                {
+                    EnvironmentName = environment.Key,
+                    TenantCode = wegwijzerTenant.Key,
+                    GemeenteCode = gemeenteTenantSectie.Key,
+                },
             };
 
         _tenantMap = tenants.ToDictionary(
@@ -82,7 +86,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     {
         return await Task.FromResult(GetAll());
     }
-    
+
     public async Task<IEnumerable<TTenantInfo>> GetAllAsync(int take, int skip)
     {
         return await Task.FromResult(GetAll().Skip(skip).Take(take));
@@ -104,7 +108,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
 
         return _tenantMap?.GetValueOrDefault(identifier.ToLower(CultureInfo.InvariantCulture));
     }
-    
+
     public Task<bool> AddAsync(TTenantInfo tenantInfo)
     {
         throw new NotSupportedException();
@@ -124,7 +128,5 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
 public class DictionaryConfigurationStore : DictionaryConfigurationStore<Wigo4itTenantInfo>
 {
     public DictionaryConfigurationStore(IConfiguration configuration)
-        : base(configuration)
-    {
-    }
+        : base(configuration) { }
 }

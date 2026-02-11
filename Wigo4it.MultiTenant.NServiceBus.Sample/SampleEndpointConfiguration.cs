@@ -16,7 +16,7 @@ public static class SampleEndpointConfiguration
         endpointConfiguration.UseWigo4itMultiTenant(_ => { });
 
         configure?.Invoke(endpointConfiguration);
-        
+
         return endpointConfiguration;
     }
 }

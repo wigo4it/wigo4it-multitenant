@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Wigo4it.MultiTenant.NServiceBus.Sample;
 using static NServiceBus.Extensions.IntegrationTesting.EndpointFixture;
 
@@ -11,18 +10,12 @@ namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
 /// </summary>
 public class MultiTenantMessageTests
 {
-    private TestWebApplicationFactory _factory = null!;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _factory = new TestWebApplicationFactory();
-    }
+    private TestWebApplicationFactory? factory;
 
     [TearDown]
     public void TearDown()
     {
-        _factory.Dispose();
+        factory?.Dispose();
     }
 
     [Test]
@@ -32,82 +25,61 @@ public class MultiTenantMessageTests
         const string environmentName = "dev";
         const string gemeenteCode = "0599";
         const string expectedSettingValue = "Default setting at Environment level";
-        
-        var sendOptions = new SendOptions();
-        sendOptions.RouteToThisEndpoint();
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerTenantCode, tenantCode);
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerEnvironmentName, environmentName);
-        sendOptions.SetHeader(MultitenancyHeaders.GemeenteCode, gemeenteCode);
-        
-        var message = new SampleMessage
-        {
-            Content = $"Sample message for {tenantCode}-{environmentName}-{gemeenteCode}",
-            CreatedAtUtc = DateTime.UtcNow
-        };
 
-        var messageSession = _factory.Services.GetRequiredService<IMessageSession>();
-        await ExecuteAndWaitForHandled<SampleMessage>(() => messageSession.Send(message, sendOptions));
-        
+        factory = new TestWebApplicationFactory();
+        var client = factory.CreateClient();
+        await ExecuteAndWaitForHandled<SampleMessage>(() =>
+            client.PostAsync($"/send/{tenantCode}-{environmentName}-{gemeenteCode}", null)
+        );
+
         // Controleer dat de aangepaste instellingswaarde is geregistreerd
-        var sampleMessageHandlerLogs = _factory.Logger.Logs
-            .Where(l => l.Category == typeof(SampleMessageHandler).FullName)
+        var sampleMessageHandlerLogs = factory
+            .Logger.Logs.Where(l => l.Category == typeof(SampleMessageHandler).FullName)
             .ToList();
-        
+
         Assert.That(sampleMessageHandlerLogs, Is.Not.Empty, "Geen logs van SampleMessageHandler gevonden");
-        
-        Assert.That(sampleMessageHandlerLogs, 
-            Has.Exactly(1).Matches<LogEntry>(l => 
-                l.Message.Contains($"Custom setting: {expectedSettingValue}"))); 
+
+        Assert.That(
+            sampleMessageHandlerLogs,
+            Has.Exactly(1).Matches<LogEntry>(l => l.Message.Contains($"Custom setting: {expectedSettingValue}"))
+        );
     }
-    
+
     [Test]
     [TestCase("9446", "dev", "0599", "Test setting: Default")]
     [TestCase("9446", "dev", "0518", "Test setting: Specific")]
-    public async Task ShouldReturnOverrides(
-        string tenantCode, 
-        string environmentName, 
-        string gemeenteCode,
-        string settingValue)
+    public async Task ShouldReturnOverrides(string tenantCode, string environmentName, string gemeenteCode, string settingValue)
     {
         // Zet gemeente-specifieke configuratie.
         // Hier via InMemoryCollection, maar elke .Net ConfigurationProvider zou werken.
-        _factory = _factory
-            .WithConfiguration(cfg =>
+        factory = new TestWebApplicationFactory(cfg =>
+        {
+            var overrides = new Dictionary<string, string?>
             {
-                var overrides = new Dictionary<string, string?>
-                {
-                    { $"Tenants:{tenantCode}:Environments:{environmentName}:Gemeenten:{gemeenteCode}:CustomSetting", settingValue }
-                };
-                cfg.AddInMemoryCollection(overrides);
-            });
-        
-        var sendOptions = new SendOptions();
-        sendOptions.RouteToThisEndpoint();
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerTenantCode, tenantCode);
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerEnvironmentName, environmentName);
-        sendOptions.SetHeader(MultitenancyHeaders.GemeenteCode, gemeenteCode);
-        
+                { $"Tenants:{tenantCode}:Environments:{environmentName}:Gemeenten:{gemeenteCode}:CustomSetting", settingValue },
+            };
+            cfg.AddInMemoryCollection(overrides);
+        });
+
         var message = new SampleMessage
         {
             Content = $"Sample message for {tenantCode}-{environmentName}-{gemeenteCode}",
-            CreatedAtUtc = DateTime.UtcNow
+            CreatedAtUtc = DateTime.UtcNow,
         };
 
-        var messageSession = _factory.Services.GetRequiredService<IMessageSession>();
-        await ExecuteAndWaitForHandled<SampleMessage>(() => messageSession.Send(message, sendOptions));
-        
+        var request = factory.Server.CreateRequest($"/send/{tenantCode}-{environmentName}-{gemeenteCode}");
+        await ExecuteAndWaitForHandled<SampleMessage>(request.PostAsync);
+
         // Controleer dat de aangepaste instellingswaarde is geregistreerd
-        var sampleMessageHandlerLogs = _factory.Logger.Logs
-            .Where(l => l.Category == typeof(SampleMessageHandler).FullName)
+        var sampleMessageHandlerLogs = factory
+            .Logger.Logs.Where(l => l.Category == typeof(SampleMessageHandler).FullName)
             .ToList();
-        
+
         Assert.That(sampleMessageHandlerLogs, Is.Not.Empty, "Geen logs van SampleMessageHandler gevonden");
-        
-        Assert.That(sampleMessageHandlerLogs, 
-            Has.Exactly(1).Matches<LogEntry>(l => 
-                l.Message.Contains($"Custom setting: {settingValue}"))); 
+
+        Assert.That(
+            sampleMessageHandlerLogs,
+            Has.Exactly(1).Matches<LogEntry>(l => l.Message.Contains($"Custom setting: {settingValue}"))
+        );
     }
 }
-
-
-
