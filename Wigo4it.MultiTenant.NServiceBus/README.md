@@ -44,7 +44,7 @@ public static EndpointConfiguration CreateEndpointConfiguration(HostBuilderConte
 builder.Host.UseNServiceBus(context => CreateEndpointConfiguration(context));
 ```
 
-1. **Optioneel: callback**
+3. **Optioneel: callback**
 
 ```csharp
 endpointConfiguration.UseWigo4itMultiTenant(tenantContext =>
@@ -116,7 +116,7 @@ app.MapPost("/send/{tenantCode}/{environmentName}/{gemeenteCode}",
     });
 ```
 
-**Vanuit een handler** (headers worden standaard gekopieerd vanaf het inkomende message, dus hoef je niet expliciet te zetten):
+**Vanuit een handler** (tenant headers worden automatisch gezet op uitgaande berichten via `AddWigo4itMultiTenantNServiceBus`, dus hoef je ze niet expliciet te zetten):
 
 ```csharp
 public async Task Handle(MyMessage message, IMessageHandlerContext context)
