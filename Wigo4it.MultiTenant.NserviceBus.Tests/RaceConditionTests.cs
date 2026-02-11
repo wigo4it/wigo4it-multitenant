@@ -13,7 +13,7 @@ public class RaceConditionTests
 {
     private ServiceProvider? _services;
 
-    private readonly List<Wigo4itTenantInfo> _expectedValues =
+    private readonly List<TestTenantInfo> _expectedValues =
     [
         new()
         {
@@ -59,8 +59,8 @@ public class RaceConditionTests
         var configuration = new ConfigurationBuilder().AddInMemoryCollection(inMemorySettings).Build();
         var serviceCollection = new ServiceCollection();
         serviceCollection.AddSingleton<IConfiguration>(configuration);
-        serviceCollection.AddWigo4itMultiTenant(NServiceBusTenantIdResolver.DetermineTenantIdentifier)
-            .ConfigurePerTenant<TestOptions, Wigo4itTenantInfo>((opt, tenant) =>
+        serviceCollection.AddWigo4itMultiTenant<TestTenantInfo>(NServiceBusTenantIdResolver.DetermineTenantIdentifier)
+            .ConfigurePerTenant<TestOptions, TestTenantInfo>((opt, tenant) =>
             {
                 opt.Name = tenant.Name;
                 opt.Identifier = tenant.Identifier;
