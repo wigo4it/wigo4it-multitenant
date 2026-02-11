@@ -1,4 +1,3 @@
-using Finbuckle.MultiTenant;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
@@ -6,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NServiceBus.Extensions.IntegrationTesting;
-using NServiceBus.Logging;
 using Wigo4it.MultiTenant.NServiceBus.Sample;
 
 namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
@@ -15,21 +13,10 @@ namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
 /// Custom WebApplicationFactory for integration testing the multi-tenant NServiceBus sample application.
 /// This factory configures the test server with appropriate settings for integration testing.
 /// </summary>
-public class TestWebApplicationFactory : WebApplicationFactory<Program>
+public class TestWebApplicationFactory(Action<IConfigurationBuilder>? configureConfiguration = null)
+    : WebApplicationFactory<Program>
 {
-    private readonly Action<IConfigurationBuilder>? _configureConfiguration;
-
     internal readonly TestLoggerProvider Logger = new();
-
-    public TestWebApplicationFactory(Action<IConfigurationBuilder>? configureConfiguration = null)
-    {
-        _configureConfiguration = configureConfiguration;
-    }
-
-    public TestWebApplicationFactory WithConfiguration(Action<IConfigurationBuilder> configureConfiguration)
-    {
-        return new TestWebApplicationFactory(configureConfiguration);
-    }
 
     protected override IHostBuilder CreateHostBuilder()
     {
@@ -41,13 +28,18 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
                 // Configure the endpoint with test-friendly defaults
                 endpoint.ConfigureTestEndpoint();
 
+                // Re-set storage directory after ConfigureTestEndpoint replaces the transport
+                var transport = endpoint.UseTransport<LearningTransport>();
+                transport.StorageDirectory(Path.Combine(ctx.HostingEnvironment.ContentRootPath, ".nsbtransport"));
+
                 return endpoint;
             })
             .ConfigureLogging(l =>
             {
+                l.ClearProviders(); // `Host.CreateDefaultBuilder` logt ook naar de Windows event log, dit leidt soms tot error in de CI runs, en doen we toch niets mee.
                 l.AddProvider(Logger);
             })
-            .ConfigureAppConfiguration(c => _configureConfiguration?.Invoke(c))
+            .ConfigureAppConfiguration(c => configureConfiguration?.Invoke(c))
             .ConfigureServices(services =>
             {
                 services.ConfigureSampleServices();
@@ -56,22 +48,4 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
 
         return builder;
     }
-
-    // protected override void ConfigureWebHost(IWebHostBuilder builder)
-    // {
-    //     // Explicitly load the Testing appsettings to ensure test-specific configuration is applied
-    //     builder.ConfigureAppConfiguration((_, config) =>
-    //     {
-    //         // Apply per-test configuration customizations last so they override defaults
-    //         _configureConfiguration?.Invoke(config);
-    //     });
-    //
-    //     builder.ConfigureServices(services =>
-    //     {
-    //         // Add any test-specific service overrides here
-    //         // For example, you might want to replace database contexts with in-memory versions
-    //         // or mock certain services for testing
-    //         _configureServices?.Invoke(services);
-    //     });
-    //}
 }

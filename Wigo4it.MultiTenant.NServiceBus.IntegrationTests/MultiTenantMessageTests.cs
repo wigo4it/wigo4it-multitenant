@@ -11,18 +11,12 @@ namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
 /// </summary>
 public class MultiTenantMessageTests
 {
-    private TestWebApplicationFactory _factory = null!;
-
-    [SetUp]
-    public void SetUp()
-    {
-        _factory = new TestWebApplicationFactory();
-    }
+    private TestWebApplicationFactory? factory;
 
     [TearDown]
     public void TearDown()
     {
-        _factory.Dispose();
+        factory?.Dispose();
     }
 
     [Test]
@@ -45,11 +39,12 @@ public class MultiTenantMessageTests
             CreatedAtUtc = DateTime.UtcNow,
         };
 
-        var messageSession = _factory.Services.GetRequiredService<IMessageSession>();
+        factory = new TestWebApplicationFactory();
+        var messageSession = factory.Services.GetRequiredService<IMessageSession>();
         await ExecuteAndWaitForHandled<SampleMessage>(() => messageSession.Send(message, sendOptions));
 
         // Controleer dat de aangepaste instellingswaarde is geregistreerd
-        var sampleMessageHandlerLogs = _factory
+        var sampleMessageHandlerLogs = factory
             .Logger.Logs.Where(l => l.Category == typeof(SampleMessageHandler).FullName)
             .ToList();
 
@@ -68,7 +63,7 @@ public class MultiTenantMessageTests
     {
         // Zet gemeente-specifieke configuratie.
         // Hier via InMemoryCollection, maar elke .Net ConfigurationProvider zou werken.
-        _factory = _factory.WithConfiguration(cfg =>
+        factory = new TestWebApplicationFactory(cfg =>
         {
             var overrides = new Dictionary<string, string?>
             {
@@ -89,11 +84,11 @@ public class MultiTenantMessageTests
             CreatedAtUtc = DateTime.UtcNow,
         };
 
-        var messageSession = _factory.Services.GetRequiredService<IMessageSession>();
+        var messageSession = factory.Services.GetRequiredService<IMessageSession>();
         await ExecuteAndWaitForHandled<SampleMessage>(() => messageSession.Send(message, sendOptions));
 
         // Controleer dat de aangepaste instellingswaarde is geregistreerd
-        var sampleMessageHandlerLogs = _factory
+        var sampleMessageHandlerLogs = factory
             .Logger.Logs.Where(l => l.Category == typeof(SampleMessageHandler).FullName)
             .ToList();
 

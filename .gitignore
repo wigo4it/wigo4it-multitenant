@@ -487,3 +487,6 @@ $RECYCLE.BIN/
 
 # Vim temporary swap files
 *.swp
+
+# NServiceBus learning transport
+.nsbtransport/
