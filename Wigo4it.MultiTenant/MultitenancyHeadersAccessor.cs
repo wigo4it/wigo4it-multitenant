@@ -1,9 +1,9 @@
 namespace Wigo4it.MultiTenant;
 
 /// <summary>
-/// Provides access to multi-tenancy headers captured from either HTTP requests or NServiceBus messages.
-/// This allows the HeaderForwarder to forward headers regardless of their source.
-/// Uses AsyncLocal to maintain headers per async flow.
+/// Biedt toegang tot multi-tenant headers die zijn opgevangen uit HTTP-aanvragen of NServiceBus-berichten.
+/// Hierdoor kan de HeaderForwarder headers doorsturen ongeacht hun bron.
+/// Gebruikt AsyncLocal om headers per async-flow bij te houden.
 /// </summary>
 public class MultitenancyHeadersAccessor
 {
@@ -38,7 +38,7 @@ public class MultitenancyHeadersAccessor
     }
     
     /// <summary>
-    /// Determines if a header key is a forwardable multi-tenancy header.
+    /// Bepaalt of een header key een door te sturen multi-tenant header is.
     /// </summary>
     public static bool IsForwardableHeader(string headerKey)
     {

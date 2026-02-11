@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Http;
 namespace Wigo4it.MultiTenant.AspNetCore;
 
 /// <summary>
-/// Middleware that captures multi-tenancy headers from incoming HTTP requests
-/// and makes them available to downstream components (like HeaderForwarder for NServiceBus).
+/// Middleware om multi-tenancy headers uit inkomende incoming HTTP requests te halen
+/// en beschikbara te maken voor downstream componenten (zoals HeaderForwarder voor NServiceBus).
 /// </summary>
 public class MultitenancyHeadersMiddleware
 {
