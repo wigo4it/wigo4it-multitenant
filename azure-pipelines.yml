@@ -78,7 +78,7 @@ steps:
     displayName: 'Run tests'
     inputs:
       command: test
-      projects: 'Wigo4it.MultiTenant.sln'
+      projects: 'Wigo4it.MultiTenant.slnx'
       arguments: '--configuration $(CONFIGURATION) --no-build --logger trx --results-directory $(Agent.TempDirectory)/test-results'
       publishTestResults: false
 
