@@ -19,16 +19,16 @@ Om een Tenant uniek te identificeren zijn drie gegevens nodig:
 
 - **Tenant identifier**: Combineert bovenstaande drie gegevens tot een unieke identifier, volgens het formaat `{TenantCode}-{EnvironmentName}-{GemeenteCode}`, bijvoorbeeld `9446-0344so1-0321`.
 - **Headers** Om de tenant-identificerende gegevens door te geven maken we gebruik van drie headers:
-  - `Wigo4it.Wegwijzer.TenantCode.Forwardable`
-  - `Wigo4it.Wegwijzer.EnvironmentName.Forwardable`
-  - `Wigo4it.Socrates.GemeenteCode.Forwardable`
-  Beschikbaar via de statische class `MultitenancyHeaders` in `Wigo4it.MultiTenant`.
+- `Wigo4it.Wegwijzer.TenantCode`
+- `Wigo4it.Wegwijzer.EnvironmentName`
+- `Wigo4it.Socrates.GemeenteCode`
+Beschikbaar via de statische class `MultitenancyHeaders` in `Wigo4it.MultiTenant`.
 - **Configuratie-hiërarchie**: defaults per omgeving met overrides per gemeente. Dit wordt door `DictionaryConfigurationStore` samengevoegd tot een `Wigo4itTenantInfo` (of eigen subtype) per tenant.
 
 ## Hoe de packages samenwerken
 
-1. **Wigo4it.MultiTenant** resolved de tenant (bijvoorbeeld uit HTTP headers) en bindt configuratie naar jouw `TenantInfo` subtype. `ConfigurePerTenant` projecteert deze waarden naar `IOptions<T>` per request.
-2. **Wigo4it.MultiTenant.NServiceBus** haalt dezelfde headers uit inkomende berichten, zet de tenantcontext en zorgt dat uitgaande berichten standaard dezelfde tenant headers meekrijgen.
+1. **Wigo4it.MultiTenant** resolved de tenant (bijvoorbeeld uit HTTP headers) en bindt configuratie naar jouw `TenantInfo` subtype. `ConfigurePerTenant` projecteert deze waarden naar `IOptions<Wigo4itTenantOptions>` per request.
+2. **Wigo4it.MultiTenant.NServiceBus** haalt dezelfde headers uit inkomende berichten, zet de tenantcontext en zet op uitgaande berichten dezelfde headers op basis van `IOptions<Wigo4itTenantOptions>`
 3. De sample app laat zien hoe beide samen worden gebruikt.
 
 ## Snel starten
@@ -42,7 +42,7 @@ Om een Tenant uniek te identificeren zijn drie gegevens nodig:
 ## Documentatie per pakket
 
 - [Basisbibliotheek](Wigo4it.MultiTenant/README.md) – configuratiestructuur, options mapping, best practices en troubleshooting.
-- [NServiceBus integratie](Wigo4it.MultiTenant.NServiceBus/README.md) – pipeline-setup, message handlers, headers doorsturen en performance tips.
+- [NServiceBus integratie](Wigo4it.MultiTenant.NServiceBus/README.md) – pipeline-setup, message handlers, tenant headers op uitgaande berichten en performance tips.
 
 ## Tests en voorbeelden
 
