@@ -51,3 +51,15 @@ Beschikbaar via de statische class `MultitenancyHeaders` in `Wigo4it.MultiTenant
 - Integratietests: zie [Wigo4it.MultiTenant.NServiceBus.IntegrationTests](Wigo4it.MultiTenant.NServiceBus.IntegrationTests).
 - Voorbeeldapp: zie [Wigo4it.MultiTenant.NServiceBus.Sample](Wigo4it.MultiTenant.NServiceBus.Sample).
 
+## Licentie-informatie en Afhankelijkheden
+Dit project is beschikbaar gesteld onder de [European Union Public Licence (EUPL-1.2)](https://joinup.ec.europa.eu/collection/eupl/eupl-text-eupl-12). Hoewel de broncode van dit project open-source is, maakt de applicatie gebruik van externe bibliotheken van derden waarvoor aanvullende voorwaarden van toepassing kunnen zijn.
+
+### Belangrijke opmerking over NServiceBus
+Deze software maakt gebruik van NServiceBus (ontwikkeld door Particular Software). Gebruikers die deze repository klonen of de applicatie zelf willen draaien, moeten rekening houden met het volgende:
+
+- **Eigen licentie benodigd**: Onze organisatie gebruikt NServiceBus onder een specifieke commerciële overeenkomst. Deze licentie is niet overdraagbaar aan derden.
+- **RPL-licentie**: Zonder commerciële licentie valt het gebruik van NServiceBus doorgaans onder de [Reciprocal Public License (RPL-1.5)](https://opensource.org/license/rpl-1-5). Dit kan verplichtingen met zich meebrengen voor uw eigen projecten.
+
+**Let op**: Gebruikers zijn zelf verantwoordelijk voor het verkrijgen van de juiste licenties. Wij adviseren om de licentievoorwaarden van [Particular Software](https://particular.net/) te raadplegen om te bepalen of u een eigen (gratis of commerciële) licentie nodig heeft voor uw specifieke gebruikssituatie.
+
+Voor een volledig overzicht van alle gebruikte pakketten en hun respectievelijke licenties, zie het bestand `THIRD-PARTY-NOTICES.md` in deze repository.
