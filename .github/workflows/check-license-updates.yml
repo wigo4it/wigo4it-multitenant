@@ -1,0 +1,48 @@
+name: Check License Updates
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+env:
+  DOTNET_VERSION: '10.0.x'
+
+jobs:
+  check-licenses:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Install nuget-license tool
+        run: dotnet tool install --global nuget-license
+      
+      - name: Restore dependencies
+        run: dotnet restore
+      
+      - name: Run nuget-license
+        run: nuget-license -i Wigo4it.MultiTenant.slnx -o Markdown -fo THIRD-PARTY-NOTICES.md -a allowed-licenses.json -ignore ignored-licenses.json
+      
+      - name: Check if THIRD-PARTY-NOTICES.md was updated
+        run: |
+          if ! git diff --quiet THIRD-PARTY-NOTICES.md; then
+            echo "❌ THIRD-PARTY-NOTICES.md is out of date"
+            echo "Run 'nuget-license -i Wigo4it.MultiTenant.slnx -o Markdown -fo THIRD-PARTY-NOTICES.md -a allowed-licenses.json -ignore ignored-licenses.json' locally and commit the changes"
+            git diff THIRD-PARTY-NOTICES.md
+            exit 1
+          else
+            echo "✅ THIRD-PARTY-NOTICES.md is up to date"
+          fi
