@@ -62,4 +62,4 @@ Deze software maakt gebruik van NServiceBus (ontwikkeld door Particular Software
 
 **Let op**: Gebruikers zijn zelf verantwoordelijk voor het verkrijgen van de juiste licenties. Wij adviseren om de licentievoorwaarden van [Particular Software](https://particular.net/) te raadplegen om te bepalen of u een eigen (gratis of commerciële) licentie nodig heeft voor uw specifieke gebruikssituatie.
 
-Voor een volledig overzicht van alle gebruikte pakketten en hun respectievelijke licenties, zie het bestand `THIRD-PARTY-NOTICES.txt` in deze repository.
+Voor een volledig overzicht van alle gebruikte pakketten en hun respectievelijke licenties, zie het bestand `THIRD-PARTY-NOTICES.md` in deze repository.
