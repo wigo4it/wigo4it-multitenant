@@ -1,19 +1,19 @@
 [
   {
     "Id": "NServiceBus",
-    "Version": "9.2.3",
+    "Version": "10.0.0",
     "License": "RPL-1.5",
     "LicenseUrl": "https://opensource.org/license/RPL-1.5"
   },
   {
     "Id": "NServiceBus.Testing",
-    "Version": "9.0.1",
+    "Version": "10.0.1",
     "License": "RPL-1.5",
     "LicenseUrl": "https://opensource.org/license/RPL-1.5"
   },
   {
     "Id": "NServiceBus.Extensions.Hosting",
-    "Version": "3.0.1",
+    "Version": "4.0.0",
     "License": "RPL-1.5",
     "LicenseUrl": "https://opensource.org/license/RPL-1.5"
   }
