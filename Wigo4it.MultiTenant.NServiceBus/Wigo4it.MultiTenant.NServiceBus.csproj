@@ -11,7 +11,7 @@
     <Company>Wigo4it</Company>
     <Description>NServiceBus integration for Wigo4it.MultiTenant. Provides multi-tenant message handling with automatic tenant resolution from message headers.</Description>
     <PackageTags>multitenant;multitenancy;nservicebus;wigo4it;messaging;saas</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/wigo4it/wigo4it-multitenant</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

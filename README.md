@@ -12,17 +12,18 @@ Multi-tenant ondersteuning voor Wigo4it applicaties, gebouwd op Finbuckle.MultiT
 ## Kernconcepten
 Een Tenant in Wigo4it context is gedefinieerd als een individuele (rand)gemeente binnen een omgeving zoals die in de Wegwijzer aangemaakt wordt.
 
-Om een Tenant uniek te identificeren zijn drie gegevens nodig:
-- `TenantCode`: De viercijferige TenantCode waaronder de omgeving in de Wegwijzer aangemaakt is. **Let op**: de definitie van Tenant in de Wegwijzer is een andere dan we hier hanteren. Voorbeeld: `0518` of `9446`.
-- `EnvironmentName`: De naam van de omgeving zoals die in de Wegwijzer aangemaakt is. Voorbeeld: `0344so1` of `0518pr1`.
-- `GemeenteCode`: De viercijferige gemeentecode van de individuele (rand)gemeente waarvoor het request bedoeld is. Voorbeeld: `0363` of `0321`.
+- Om een Tenant uniek te identificeren zijn drie gegevens nodig:
+  - `TenantCode`: De viercijferige TenantCode waaronder de omgeving in de Wegwijzer aangemaakt is. **Let op**: de definitie van Tenant in de Wegwijzer is een andere dan we hier hanteren. Voorbeeld: `0518` of `9446`.
+  - `EnvironmentName`: De naam van de omgeving zoals die in de Wegwijzer aangemaakt is. Voorbeeld: `0344so1` of `demo-env`.
+  - `GemeenteCode`: De viercijferige gemeentecode van de individuele (rand)gemeente waarvoor het request bedoeld is. Voorbeeld: `0363` of `0321`.
 
 - **Tenant identifier**: Combineert bovenstaande drie gegevens tot een unieke identifier, volgens het formaat `{TenantCode}-{EnvironmentName}-{GemeenteCode}`, bijvoorbeeld `9446-0344so1-0321`.
 - **Headers** Om de tenant-identificerende gegevens door te geven maken we gebruik van drie headers:
-- `Wigo4it.Wegwijzer.TenantCode`
-- `Wigo4it.Wegwijzer.EnvironmentName`
-- `Wigo4it.Socrates.GemeenteCode`
-Beschikbaar via de statische class `MultitenancyHeaders` in `Wigo4it.MultiTenant`.
+  - `Wigo4it.Wegwijzer.TenantCode`
+  - `Wigo4it.Wegwijzer.EnvironmentName`
+  - `Wigo4it.Socrates.GemeenteCode`
+
+  Beschikbaar via de statische class `MultitenancyHeaders` in `Wigo4it.MultiTenant`.
 - **Configuratie-hiërarchie**: defaults per omgeving met overrides per gemeente. Dit wordt door `DictionaryConfigurationStore` samengevoegd tot een `Wigo4itTenantInfo` (of eigen subtype) per tenant.
 
 ## Hoe de packages samenwerken

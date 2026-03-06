@@ -11,7 +11,7 @@
     <Company>Wigo4it</Company>
     <Description>Multi-tenant support for Wigo4it applications, built on Finbuckle.MultiTenant. Provides standardized multi-tenancy implementation with configuration-based tenant storage.</Description>
     <PackageTags>multitenant;multitenancy;finbuckle;wigo4it;saas</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageLicenseExpression>EUPL-1.2</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryUrl>https://github.com/wigo4it/wigo4it-multitenant</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
