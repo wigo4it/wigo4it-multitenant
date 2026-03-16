@@ -1,4 +1,5 @@
 ﻿using Finbuckle.MultiTenant.Abstractions;
+using Microsoft.Extensions.Configuration;
 
 namespace Wigo4it.MultiTenant;
 

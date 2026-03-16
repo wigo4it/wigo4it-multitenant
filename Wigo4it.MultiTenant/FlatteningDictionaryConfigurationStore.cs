@@ -52,39 +52,10 @@ public class FlatteningDictionaryConfigurationStore : IMultiTenantStore<Flattend
             from gemeente in environment.GetSection(GemeentenSectie).GetChildren()
             select new FlattendConfigTennantInfo(
                 identifier : gemeente.GetValue<string>("identifier")!,
-                lazyConfiguration: new Lazy<IConfiguration>(()=> MergeSections([gemeente, environment, _sectie])));
+                lazyConfiguration: new Lazy<IConfiguration>(()=> new MultiLevelConfiguration((IConfiguration[])[gemeente, environment, _sectie])));
 
         _tenantMap = tenants.ToDictionary(x => x.Identifier, StringComparer.InvariantCultureIgnoreCase);
     }
-
-
-    private static IConfiguration MergeSections(IConfiguration[] sections)
-    {
-        var all = sections.SelectMany(GetLeafValues).DistinctBy(kv => kv.Key);
-
-        var provider = new MemoryConfigurationProvider(
-            new MemoryConfigurationSource { InitialData = all! });
-        
-        return new ConfigurationRoot([provider]);
-    }
-
-    private static IEnumerable<KeyValuePair<string, string>> GetLeafValues(IConfiguration section)
-    {
-        var basePath = (section as IConfigurationSection)?.Path;
-
-        return section.AsEnumerable()
-            .Where(kvp => kvp.Value is not null)
-            .Select(kvp => KeyValuePair.Create(StripPrefix(kvp.Key, basePath), kvp.Value!))
-            .Where(kvp => !string.IsNullOrEmpty(kvp.Key))
-            .Where(kvp => !IsStructuralSection(kvp.Key));
-    }
-
-    private static string StripPrefix(string key, string? prefix)
-        => string.IsNullOrEmpty(prefix) ? key : key[prefix.Length..].TrimStart(':');
-
-    private static bool IsStructuralSection(string relativePath)
-        => StructuralSections.Any(s => relativePath.StartsWith(s + ":", StringComparison.OrdinalIgnoreCase));
-
 
     public Task<FlattendConfigTennantInfo?> GetAsync(string id)
     {
@@ -129,6 +100,43 @@ public class FlattendConfigTennantInfo(string identifier, Lazy<IConfiguration> l
     
     public IConfiguration Configuration => lazyConfiguration.Value;
     
+}
+
+
+class MultiLevelConfiguration(IReadOnlyCollection<IConfiguration> inner) : IConfiguration
+{
+    public IEnumerable<IConfigurationSection> GetChildren() 
+        => inner.SelectMany(l => l.GetChildren()
+        .Where(FilterSubSections)
+        ).GroupBy(s => s.Key).Select(g=> new MultiLevelConfigurationSection(g.ToArray()))
+    ;
+
+    private bool FilterSubSections(IConfigurationSection section)
+    {
+        return section.Key is not "Tenants" and not "Environments" and not "Gemeenten";
+    }
+
+    public IChangeToken GetReloadToken() => inner.First().GetReloadToken();
+
+    public IConfigurationSection GetSection(string key) =>
+        new MultiLevelConfigurationSection(inner.Select(l => l.GetSection(key)).ToArray());
+
+    public string? this[string key]
+    {
+        get => inner.Select(l=>l[key]).FirstOrDefault(v => v is not null);
+        set => inner.FirstOrDefault()?[key] = value;
+    }
+}
+
+class MultiLevelConfigurationSection(IReadOnlyCollection<IConfigurationSection> inner) : MultiLevelConfiguration(inner) , IConfigurationSection
+{
+    public string Key => inner.First().Key;
+    public string Path => inner.First().Path;
+    public string? Value
+    {
+        get => inner.Select(l => l.Value).FirstOrDefault(v => v is not null);
+        set => inner.FirstOrDefault()?.Value = value;
+    }
 }
 
 
