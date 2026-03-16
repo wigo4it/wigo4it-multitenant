@@ -52,7 +52,7 @@ public class FlatteningDictionaryConfigurationStore : IMultiTenantStore<Flattend
             from gemeente in environment.GetSection(GemeentenSectie).GetChildren()
             select new FlattendConfigTennantInfo(
                 identifier : gemeente.GetValue<string>("identifier")!,
-                lazyConfiguration: new Lazy<IConfiguration>(()=> MergeSections([_sectie, environment, gemeente])));
+                lazyConfiguration: new Lazy<IConfiguration>(()=> MergeSections([gemeente, environment, _sectie])));
 
         _tenantMap = tenants.ToDictionary(x => x.Identifier, StringComparer.InvariantCultureIgnoreCase);
     }
@@ -60,7 +60,7 @@ public class FlatteningDictionaryConfigurationStore : IMultiTenantStore<Flattend
 
     private static IConfiguration MergeSections(IConfiguration[] sections)
     {
-        var all = sections.Reverse().SelectMany(GetLeafValues).DistinctBy(kv=>kv.Key);
+        var all = sections.SelectMany(GetLeafValues).DistinctBy(kv => kv.Key);
 
         var provider = new MemoryConfigurationProvider(
             new MemoryConfigurationSource { InitialData = all! });
