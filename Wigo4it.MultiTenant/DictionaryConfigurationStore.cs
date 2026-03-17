@@ -53,9 +53,17 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     private TTenantInfo CreateTennantInfo(
         IConfigurationSection gemeenteTenantSectie,
         IConfigurationSection environment,
-        IConfigurationSection wegwijzerTenant)
+        IConfigurationSection wegwijzerTenant
+    )
     {
-        var mergedConfiguration = new MultiLevelConfiguration(gemeenteTenantSectie, environment, wegwijzerTenant, _rootConfiguration);
+        var mergedConfiguration = new MultiLevelConfiguration(
+            gemeenteTenantSectie,
+            environment.GetSection("defaults"),
+            environment,
+            wegwijzerTenant.GetSection("defaults"),
+            wegwijzerTenant,
+            _rootConfiguration
+        );
         var tenantInfo = mergedConfiguration.Get<TTenantInfo>(options => options.BindNonPublicProperties = true);
 
         return tenantInfo with
@@ -66,8 +74,8 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
             {
                 TenantCode = wegwijzerTenant.Key,
                 EnvironmentName = environment.Key,
-                GemeenteCode = gemeenteTenantSectie.Key
-            }
+                GemeenteCode = gemeenteTenantSectie.Key,
+            },
         };
     }
 
@@ -120,8 +128,5 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     }
 }
 
-public class DictionaryConfigurationStore : DictionaryConfigurationStore<Wigo4itTenantInfo>
-{
-    public DictionaryConfigurationStore(IConfiguration configuration)
-        : base(configuration) { }
-}
+public class DictionaryConfigurationStore(IConfiguration configuration)
+    : DictionaryConfigurationStore<Wigo4itTenantInfo>(configuration);

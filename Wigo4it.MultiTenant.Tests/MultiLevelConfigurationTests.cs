@@ -12,13 +12,15 @@ public class MultiLevelConfigurationTests
     public async Task KanWaardenOphalen()
     {
         IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            ["MyOptions:Level1"] = "L1 value",
-            ["Tenants:9446:MyOptions:Level2"] = "L2 value",
-            ["Tenants:9446:Environments:dev:MyOptions:Level3"] = "L3 value",
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Level4"] = "L4 value",
-        });
+        configurationBuilder.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                ["MyOptions:Level1"] = "L1 value",
+                ["Tenants:9446:MyOptions:Level2"] = "L2 value",
+                ["Tenants:9446:Environments:dev:MyOptions:Level3"] = "L3 value",
+                ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Level4"] = "L4 value",
+            }
+        );
 
         // Arrange
         var store = new DictionaryConfigurationStore(configurationBuilder.Build());
@@ -39,16 +41,18 @@ public class MultiLevelConfigurationTests
     public async Task LagerNiveauOverschrijftHogerNiveau()
     {
         IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            // Root level sets Shared to "root"
-            ["MyOptions:Shared"] = "root",
-            // Environment level overrides Shared to "environment"
-            ["Tenants:9446:Environments:dev:MyOptions:Shared"] = "environment",
-            // Gemeente level overrides Shared to "gemeente"
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Shared"] = "gemeente",
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
-        });
+        configurationBuilder.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                // Root level sets Shared to "root"
+                ["MyOptions:Shared"] = "root",
+                // Environment level overrides Shared to "environment"
+                ["Tenants:9446:Environments:dev:MyOptions:Shared"] = "environment",
+                // Gemeente level overrides Shared to "gemeente"
+                ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Shared"] = "gemeente",
+                ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
+            }
+        );
 
         var store = new DictionaryConfigurationStore(configurationBuilder.Build());
 
@@ -65,15 +69,17 @@ public class MultiLevelConfigurationTests
     public async Task OmgevingOverschrijftRoot()
     {
         IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            // Root level sets Shared to "root"
-            ["MyOptions:Shared"] = "root",
-            // Environment level overrides Shared to "environment"
-            ["Tenants:9446:Environments:dev:MyOptions:Shared"] = "environment",
-            // Gemeente does NOT override Shared
-            ["Tenants:9446:Environments:dev:Gemeenten:0363"] = null,
-        });
+        configurationBuilder.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                // Root level sets Shared to "root"
+                ["MyOptions:Shared"] = "root",
+                // Environment level overrides Shared to "environment"
+                ["Tenants:9446:Environments:dev:MyOptions:Shared"] = "environment",
+                // Gemeente does NOT override Shared
+                ["Tenants:9446:Environments:dev:Gemeenten:0363"] = null,
+            }
+        );
 
         var store = new DictionaryConfigurationStore(configurationBuilder.Build());
 
@@ -85,21 +91,23 @@ public class MultiLevelConfigurationTests
         // Environment should override root when gemeente doesn't specify a value
         Assert.That(myOptions.Shared, Is.EqualTo("environment"));
     }
-    
+
     [Test]
     public async Task KanOptionsOphalenViaFinbuckle()
     {
         // Arrange: build configuration with values at all three levels
         var configuration = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["MyOptions:Level1"] = "L1 value",
-                ["Tenants:9446:Environments:dev:MyOptions:Level2"] = "L2 value",
-                ["Tenants:9446:Environments:dev:MyOptions:Shared"] = "environment",
-                ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Level3"] = "L3 value",
-                ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Shared"] = "gemeente",
-                ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
-            })
+            .AddInMemoryCollection(
+                new Dictionary<string, string?>
+                {
+                    ["MyOptions:Level1"] = "L1 value",
+                    ["Tenants:9446:Environments:dev:MyOptions:Level2"] = "L2 value",
+                    ["Tenants:9446:Environments:dev:MyOptions:Shared"] = "environment",
+                    ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Level3"] = "L3 value",
+                    ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Shared"] = "gemeente",
+                    ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
+                }
+            )
             .Build();
 
         // Arrange: wire up services with Finbuckle and the FlatteningDictionaryConfigurationStore
@@ -142,30 +150,32 @@ public class MultiLevelConfigurationTests
     public async Task ConfiguratieBevatGeenWaardenVanAndereTenants()
     {
         IConfigurationBuilder configurationBuilder = new ConfigurationBuilder();
-        configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
-        {
-            // Global root-level setting
-            ["MyOptions:RootSetting"] = "root",
+        configurationBuilder.AddInMemoryCollection(
+            new Dictionary<string, string?>
+            {
+                // Global root-level setting
+                ["MyOptions:RootSetting"] = "root",
 
-            // Tenant 9446, environment dev, gemeente 0363 (our target)
-            ["Tenants:9446:Environments:dev:MyOptions:EnvSetting"] = "dev-setting",
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:GemeenteSetting"] = "gemeente-0363",
+                // Tenant 9446, environment dev, gemeente 0363 (our target)
+                ["Tenants:9446:Environments:dev:MyOptions:EnvSetting"] = "dev-setting",
+                ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
+                ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:GemeenteSetting"] = "gemeente-0363",
 
-            // Other gemeente in same environment — should NOT leak
-            ["Tenants:9446:Environments:dev:Gemeenten:0599:Identifier"] = "should NOT leak 1",
-            ["Tenants:9446:Environments:dev:Gemeenten:0599:MyOptions:GemeenteSetting"] = "should NOT leak",
+                // Other gemeente in same environment — should NOT leak
+                ["Tenants:9446:Environments:dev:Gemeenten:0599:Identifier"] = "should NOT leak 1",
+                ["Tenants:9446:Environments:dev:Gemeenten:0599:MyOptions:GemeenteSetting"] = "should NOT leak",
 
-            // Other environment in same tenant — should NOT leak
-            ["Tenants:9446:Environments:acc:MyOptions:EnvSetting"] = "should NOT leak",
-            ["Tenants:9446:Environments:acc:Gemeenten:0363:Identifier"] = "should NOT leak 2",
-            ["Tenants:9446:Environments:acc:Gemeenten:0363:MyOptions:GemeenteSetting"] = "should NOT leak",
+                // Other environment in same tenant — should NOT leak
+                ["Tenants:9446:Environments:acc:MyOptions:EnvSetting"] = "should NOT leak",
+                ["Tenants:9446:Environments:acc:Gemeenten:0363:Identifier"] = "should NOT leak 2",
+                ["Tenants:9446:Environments:acc:Gemeenten:0363:MyOptions:GemeenteSetting"] = "should NOT leak",
 
-            // Completely different tenant — should NOT leak
-            ["Tenants:1234:Environments:dev:MyOptions:EnvSetting"] = "should NOT leak",
-            ["Tenants:1234:Environments:dev:Gemeenten:0001:Identifier"] = "should NOT leak 3",
-            ["Tenants:1234:Environments:dev:Gemeenten:0001:MyOptions:GemeenteSetting"] = "should NOT leak",
-        });
+                // Completely different tenant — should NOT leak
+                ["Tenants:1234:Environments:dev:MyOptions:EnvSetting"] = "should NOT leak",
+                ["Tenants:1234:Environments:dev:Gemeenten:0001:Identifier"] = "should NOT leak 3",
+                ["Tenants:1234:Environments:dev:Gemeenten:0001:MyOptions:GemeenteSetting"] = "should NOT leak",
+            }
+        );
 
         var store = new DictionaryConfigurationStore(configurationBuilder.Build());
 
@@ -173,11 +183,12 @@ public class MultiLevelConfigurationTests
         Assert.That(tenant, Is.Not.Null);
 
         // Collect all key-value pairs from the tenant's configuration
-        var allValues = tenant!.Configuration.AsEnumerable()
+        var allValues = tenant!
+            .Configuration.AsEnumerable()
             .Where(kvp => kvp.Value is not null)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-//        Should contain own values from all three levels
+        //        Should contain own values from all three levels
         Assert.That(allValues, Contains.Key("MyOptions:RootSetting"));
         Assert.That(allValues, Contains.Key("Tenants:9446:Environments:dev:MyOptions:EnvSetting"));
         Assert.That(allValues, Contains.Key("Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:GemeenteSetting"));
@@ -185,9 +196,12 @@ public class MultiLevelConfigurationTests
         // Should NOT contain values from the other gemeente, environment, or tenant
         var leakedValues = allValues.Where(kvp => kvp.Value.StartsWith("should NOT leak")).ToList();
 
-        Assert.That(leakedValues, Is.Empty,
-            $"Tenant configuration contains leaked values from other tenants/environments/gemeenten: " +
-            $"{string.Join(", ", leakedValues.Select(kvp => $"{kvp.Key}={kvp.Value}"))}");
+        Assert.That(
+            leakedValues,
+            Is.Empty,
+            $"Tenant configuration contains leaked values from other tenants/environments/gemeenten: "
+                + $"{string.Join(", ", leakedValues.Select(kvp => $"{kvp.Key}={kvp.Value}"))}"
+        );
     }
 
     class MyOptions
