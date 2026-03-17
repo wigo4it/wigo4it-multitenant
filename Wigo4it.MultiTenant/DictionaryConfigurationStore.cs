@@ -23,57 +23,55 @@ namespace Wigo4it.MultiTenant;
 public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo>
     where TTenantInfo : Wigo4itTenantInfo
 {
-    private readonly IConfigurationSection _sectie;
+    private readonly IConfiguration _rootConfiguration;
     private Dictionary<string, TTenantInfo>? _tenantMap;
 
-    private const string ConfiguratieSectie = "Tenants";
-    private const string EnvironmentsSectie = "Environments";
-    private const string DefaultsSectie = "Defaults";
-    private const string GemeentenSectie = "Gemeenten";
+
 
     public DictionaryConfigurationStore(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        _sectie = configuration.GetSection(ConfiguratieSectie);
+        _rootConfiguration = configuration;
 
         UpdateTenantMap();
-        ChangeToken.OnChange(_sectie.GetReloadToken, UpdateTenantMap);
+        ChangeToken.OnChange(_rootConfiguration.GetReloadToken, UpdateTenantMap);
     }
 
     private void UpdateTenantMap()
     {
         var tenants =
-            from wegwijzerTenant in _sectie.GetChildren()
-            from environment in wegwijzerTenant.GetSection(EnvironmentsSectie).GetChildren()
-            from gemeenteTenantSectie in environment.GetSection(GemeentenSectie).GetChildren()
-            let defaultTenant = environment
-                .GetSection(DefaultsSectie)
-                .Get<TTenantInfo>(options => options.BindNonPublicProperties = true)
-            let specificTenant = OverrideDefaults(defaultTenant, gemeenteTenantSectie)
-            select specificTenant with
-            {
-                Options = new Wigo4itTenantOptions
-                {
-                    EnvironmentName = environment.Key,
-                    TenantCode = wegwijzerTenant.Key,
-                    GemeenteCode = gemeenteTenantSectie.Key,
-                },
-            };
+            from wegwijzerTenant in _rootConfiguration.GetSection(SectionNames.TenantsSectie).GetChildren()
+            from environment in wegwijzerTenant.GetSection(SectionNames.EnvironmentsSectie).GetChildren()
+            from gemeenteTenantSectie in environment.GetSection(SectionNames.GemeentenSectie).GetChildren()
+            select CreateTennantInfo(gemeenteTenantSectie, environment, wegwijzerTenant);
 
         _tenantMap = tenants.ToDictionary(
             x => x.Identifier?.ToLower() ?? throw new ArgumentException("Tenant without Identifier found in config."),
             x => x
         );
     }
-
-    private static TTenantInfo OverrideDefaults(
-        TTenantInfo gemeenteTenantWithDefaults,
-        IConfigurationSection gemeenteTenantSectie
-    )
+    
+    
+    private TTenantInfo CreateTennantInfo(
+        IConfigurationSection gemeenteTenantSectie,
+        IConfigurationSection environment,
+        IConfigurationSection wegwijzerTenant)
     {
-        gemeenteTenantSectie.Bind(gemeenteTenantWithDefaults, options => options.BindNonPublicProperties = true);
-        return gemeenteTenantWithDefaults;
+        var mergedConfiguration = new MultiLevelConfiguration(gemeenteTenantSectie, environment, wegwijzerTenant, _rootConfiguration);
+        var tenantInfo = mergedConfiguration.Get<TTenantInfo>(options => options.BindNonPublicProperties = true);
+
+        return tenantInfo with
+        {
+            Identifier = $"{wegwijzerTenant.Key}-{environment.Key}-{gemeenteTenantSectie.Key}",
+            Configuration = mergedConfiguration,
+            Options = new Wigo4itTenantOptions
+            {
+                TenantCode = wegwijzerTenant.Key,
+                EnvironmentName = environment.Key,
+                GemeenteCode = gemeenteTenantSectie.Key
+            }
+        };
     }
 
     public Task<TTenantInfo?> GetAsync(string id)

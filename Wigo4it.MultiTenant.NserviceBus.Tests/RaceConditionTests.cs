@@ -27,6 +27,8 @@ public class RaceConditionTests
                 EnvironmentName = "xyz",
             },
             ConnectionString = "someConnectionString",
+            Configuration = null!,
+
         },
         new()
         {
@@ -40,6 +42,8 @@ public class RaceConditionTests
                 EnvironmentName = "xyz",
             },
             ConnectionString = "someConnectionString2",
+            Configuration = null!,
+
         },
     ];
 

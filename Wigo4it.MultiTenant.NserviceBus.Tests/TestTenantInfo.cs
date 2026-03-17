@@ -4,4 +4,5 @@ public record TestTenantInfo : Wigo4itTenantInfo
 {
     public required string Hoofdgemeente { get; set; }
     public required string Name { get; set; }
+    public required string ConnectionString { get; set; }
 }

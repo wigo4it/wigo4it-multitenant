@@ -18,11 +18,8 @@ public record Wigo4itTenantInfo : ITenantInfo
     /// {Wegwijzer TenantCode}-{Wegwijzer EnvironmentName}-{GemeenteCode}
     /// </summary>
     public required string Identifier { get; init; }
-
-    /// <summary>
-    /// De connectionstring naar de database voor deze tenant
-    /// </summary>
-    public required string ConnectionString { get; set; }
+    
+    public required IConfiguration Configuration { get; init; }
 
     public required Wigo4itTenantOptions Options { get; init; }
 }

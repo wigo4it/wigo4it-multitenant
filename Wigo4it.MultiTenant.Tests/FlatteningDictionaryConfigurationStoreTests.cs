@@ -1,5 +1,4 @@
-﻿using Finbuckle.MultiTenant;
-using Finbuckle.MultiTenant.Abstractions;
+﻿using Finbuckle.MultiTenant.Abstractions;
 using Finbuckle.MultiTenant.Extensions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -16,25 +15,24 @@ public class FlatteningDictionaryConfigurationStoreTests
         configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
         {
             ["MyOptions:Level1"] = "L1 value",
-            ["Tenants:9446:Environments:dev:MyOptions:Level2"] = "L2 value",
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Level3"] = "L3 value",
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0559",
+            ["Tenants:9446:MyOptions:Level2"] = "L2 value",
+            ["Tenants:9446:Environments:dev:MyOptions:Level3"] = "L3 value",
+            ["Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:Level4"] = "L4 value",
         });
 
         // Arrange
-        var store = new FlatteningDictionaryConfigurationStore(configurationBuilder.Build());
+        var store = new DictionaryConfigurationStore(configurationBuilder.Build());
 
         // Act
-        var stage = await store.GetAsync("9446-dev-0559");
+        var stage = await store.GetAsync("9446-dev-0363");
 
+        var myOptions = stage!.Configuration.GetSection("MyOptions").Get<MyOptions>()!;
 
-        var myOptions = new MyOptions();
-        stage.Configuration.Bind("MyOptions", myOptions);
+        // Assert
         Assert.That(myOptions.Level1, Is.EqualTo("L1 value"));
         Assert.That(myOptions.Level2, Is.EqualTo("L2 value"));
         Assert.That(myOptions.Level3, Is.EqualTo("L3 value"));
-
-        // Assert
+        Assert.That(myOptions.Level4, Is.EqualTo("L4 value"));
     }
 
     [Test]
@@ -52,7 +50,7 @@ public class FlatteningDictionaryConfigurationStoreTests
             ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
         });
 
-        var store = new FlatteningDictionaryConfigurationStore(configurationBuilder.Build());
+        var store = new DictionaryConfigurationStore(configurationBuilder.Build());
 
         var tenant = await store.GetAsync("9446-dev-0363");
 
@@ -74,10 +72,10 @@ public class FlatteningDictionaryConfigurationStoreTests
             // Environment level overrides Shared to "environment"
             ["Tenants:9446:Environments:dev:MyOptions:Shared"] = "environment",
             // Gemeente does NOT override Shared
-            ["Tenants:9446:Environments:dev:Gemeenten:0363:Identifier"] = "9446-dev-0363",
+            ["Tenants:9446:Environments:dev:Gemeenten:0363"] = null,
         });
 
-        var store = new FlatteningDictionaryConfigurationStore(configurationBuilder.Build());
+        var store = new DictionaryConfigurationStore(configurationBuilder.Build());
 
         var tenant = await store.GetAsync("9446-dev-0363");
 
@@ -109,11 +107,11 @@ public class FlatteningDictionaryConfigurationStoreTests
         services.AddSingleton<IConfiguration>(configuration);
 
         services
-            .AddMultiTenant<FlattendConfigTennantInfo>()
-            .WithStore<FlatteningDictionaryConfigurationStore>(ServiceLifetime.Singleton)
+            .AddMultiTenant<Wigo4itTenantInfo>()
+            .WithStore<DictionaryConfigurationStore>(ServiceLifetime.Singleton)
             .WithStaticStrategy("9446-dev-0363");
 
-        services.ConfigurePerTenant<MyOptions, FlattendConfigTennantInfo>(
+        services.ConfigurePerTenant<MyOptions, Wigo4itTenantInfo>(
             (options, tenant) =>
             {
                 tenant.Configuration.Bind("MyOptions", options);
@@ -169,7 +167,7 @@ public class FlatteningDictionaryConfigurationStoreTests
             ["Tenants:1234:Environments:dev:Gemeenten:0001:MyOptions:GemeenteSetting"] = "should NOT leak",
         });
 
-        var store = new FlatteningDictionaryConfigurationStore(configurationBuilder.Build());
+        var store = new DictionaryConfigurationStore(configurationBuilder.Build());
 
         var tenant = await store.GetAsync("9446-dev-0363");
         Assert.That(tenant, Is.Not.Null);
@@ -179,12 +177,10 @@ public class FlatteningDictionaryConfigurationStoreTests
             .Where(kvp => kvp.Value is not null)
             .ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
 
-        // Should contain own values from all three levels
-        // Assert.That(allValues, Contains.Key("MyOptions:RootSetting"));
-        // Assert.That(allValues, Contains.Key("MyOptions:EnvSetting"));
-        // Assert.That(allValues["MyOptions:EnvSetting"], Is.EqualTo("dev-setting"));
-        // Assert.That(allValues, Contains.Key("MyOptions:GemeenteSetting"));
-        // Assert.That(allValues["MyOptions:GemeenteSetting"], Is.EqualTo("gemeente-0363"));
+//        Should contain own values from all three levels
+        Assert.That(allValues, Contains.Key("MyOptions:RootSetting"));
+        Assert.That(allValues, Contains.Key("Tenants:9446:Environments:dev:MyOptions:EnvSetting"));
+        Assert.That(allValues, Contains.Key("Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:GemeenteSetting"));
 
         // Should NOT contain values from the other gemeente, environment, or tenant
         var leakedValues = allValues.Where(kvp => kvp.Value.StartsWith("should NOT leak")).ToList();
@@ -199,6 +195,7 @@ public class FlatteningDictionaryConfigurationStoreTests
         public string? Level1 { get; set; }
         public string? Level2 { get; set; }
         public string? Level3 { get; set; }
+        public string? Level4 { get; set; }
         public string? Shared { get; set; }
     }
 }
