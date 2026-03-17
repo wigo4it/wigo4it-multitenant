@@ -194,7 +194,7 @@ public class MultiLevelConfigurationTests
         Assert.That(allValues, Contains.Key("Tenants:9446:Environments:dev:Gemeenten:0363:MyOptions:GemeenteSetting"));
 
         // Should NOT contain values from the other gemeente, environment, or tenant
-        var leakedValues = allValues.Where(kvp => kvp.Value.StartsWith("should NOT leak")).ToList();
+        var leakedValues = allValues.Where(kvp => kvp.Value!.StartsWith("should NOT leak")).ToList();
 
         Assert.That(
             leakedValues,

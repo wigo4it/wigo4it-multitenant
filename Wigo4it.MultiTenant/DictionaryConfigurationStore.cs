@@ -64,11 +64,13 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
             wegwijzerTenant,
             _rootConfiguration
         );
-        var tenantInfo = mergedConfiguration.Get<TTenantInfo>(options => options.BindNonPublicProperties = true);
+        var identifier = $"{wegwijzerTenant.Key}-{environment.Key}-{gemeenteTenantSectie.Key}";
+        var tenantInfo = mergedConfiguration.Get<TTenantInfo>(options => options.BindNonPublicProperties = true)
+                         ?? throw new InvalidOperationException($"Failed to bind tenant configuration for type {typeof(TTenantInfo).Name} and tenant {identifier}.");
 
         return tenantInfo with
         {
-            Identifier = $"{wegwijzerTenant.Key}-{environment.Key}-{gemeenteTenantSectie.Key}",
+            Identifier = identifier,
             Configuration = mergedConfiguration,
             Options = new Wigo4itTenantOptions
             {
