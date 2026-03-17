@@ -65,8 +65,11 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
             _rootConfiguration
         );
         var identifier = $"{wegwijzerTenant.Key}-{environment.Key}-{gemeenteTenantSectie.Key}";
-        var tenantInfo = mergedConfiguration.Get<TTenantInfo>(options => options.BindNonPublicProperties = true)
-                         ?? throw new InvalidOperationException($"Failed to bind tenant configuration for type {typeof(TTenantInfo).Name} and tenant {identifier}.");
+        var tenantInfo =
+            mergedConfiguration.Get<TTenantInfo>(options => options.BindNonPublicProperties = true)
+            ?? throw new InvalidOperationException(
+                $"Failed to bind tenant configuration for type {typeof(TTenantInfo).Name} and tenant {identifier}."
+            );
 
         return tenantInfo with
         {
