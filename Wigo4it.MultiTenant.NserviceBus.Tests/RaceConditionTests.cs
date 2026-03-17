@@ -28,7 +28,6 @@ public class RaceConditionTests
             },
             ConnectionString = "someConnectionString",
             Configuration = null!,
-
         },
         new()
         {
@@ -43,7 +42,6 @@ public class RaceConditionTests
             },
             ConnectionString = "someConnectionString2",
             Configuration = null!,
-
         },
     ];
 

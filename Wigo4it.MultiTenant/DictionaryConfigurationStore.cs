@@ -26,8 +26,6 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     private readonly IConfiguration _rootConfiguration;
     private Dictionary<string, TTenantInfo>? _tenantMap;
 
-
-
     public DictionaryConfigurationStore(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
@@ -51,8 +49,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
             x => x
         );
     }
-    
-    
+
     private TTenantInfo CreateTennantInfo(
         IConfigurationSection gemeenteTenantSectie,
         IConfigurationSection environment,

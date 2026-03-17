@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Wigo4it.MultiTenant.Tests;
 
-public class FlatteningDictionaryConfigurationStoreTests
+public class MultiLevelConfigurationTests
 {
     [Test]
     public async Task KanWaardenOphalen()

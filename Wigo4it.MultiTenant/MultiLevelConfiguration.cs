@@ -13,11 +13,10 @@ class MultiLevelConfiguration(params IReadOnlyCollection<IConfiguration> inner) 
         // We moeten de child secties van alle inner IConfiguration's teruggeven,
         // Omdat dezelfde child-sectie op meerdere niveaus kan voorkomen groeperen we die dan tot 1 MultiLevelConfigurationSection.
         inner
-            .SelectMany(l => l.GetChildren()
-                .Where(FilterSubSections))
+            .SelectMany(l => l.GetChildren().Where(FilterSubSections))
             .GroupBy(s => s.Key)
-            .Select(g=> new MultiLevelConfigurationSection(g.ToArray()));
-    
+            .Select(g => new MultiLevelConfigurationSection(g.ToArray()));
+
     private bool FilterSubSections(IConfigurationSection section) => !SectionNames.All.Contains(section.Key);
 
     public IChangeToken GetReloadToken() => inner.First().GetReloadToken();
@@ -27,14 +26,17 @@ class MultiLevelConfiguration(params IReadOnlyCollection<IConfiguration> inner) 
 
     public string? this[string key]
     {
-        get => inner.Select(l=>l[key]).FirstOrDefault(v => v is not null);
+        get => inner.Select(l => l[key]).FirstOrDefault(v => v is not null);
         set => inner.FirstOrDefault()?[key] = value;
     }
-    
-    class MultiLevelConfigurationSection(IReadOnlyCollection<IConfigurationSection> inner) : MultiLevelConfiguration(inner) , IConfigurationSection
+
+    class MultiLevelConfigurationSection(IReadOnlyCollection<IConfigurationSection> inner)
+        : MultiLevelConfiguration(inner),
+            IConfigurationSection
     {
         public string Key => inner.First().Key;
         public string Path => inner.First().Path;
+
         public string? Value
         {
             get => inner.Select(l => l.Value).FirstOrDefault(v => v is not null);

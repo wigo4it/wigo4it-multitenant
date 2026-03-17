@@ -18,7 +18,7 @@ public record Wigo4itTenantInfo : ITenantInfo
     /// {Wegwijzer TenantCode}-{Wegwijzer EnvironmentName}-{GemeenteCode}
     /// </summary>
     public required string Identifier { get; init; }
-    
+
     public required IConfiguration Configuration { get; init; }
 
     public required Wigo4itTenantOptions Options { get; init; }
