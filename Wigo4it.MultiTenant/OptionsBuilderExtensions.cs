@@ -10,18 +10,17 @@ public static class OptionsBuilderExtensions
     /// <summary>
     /// Multi-tenant versie van <see cref="OptionsBuilderConfigurationExtensions.BindConfiguration{TOptions}(OptionsBuilder{TOptions}, IConfiguration, Action{BinderOptions})"/>.
     ///
-    /// Registeerd de dependency injection container om <typeparamref name="TOptions"/> te binden tegen
-    /// de tenant-specifieke <see cref="IConfiguration"/>
+    /// Registreert de dependency injection container om <typeparamref name="TOptions"/> te binden tegen
+    /// de tenant-specifieke <see cref="IConfiguration"/>.
     /// </summary>
-    /// <typeparam name="TOptions">The options type to be configured.</typeparam>
-    /// <param name="optionsBuilder">The options builder to add the services to.</param>
-    /// <param name="configSectionPath">The name of the configuration section to bind from.</param>
-    /// <param name="configureBinder">Optional. Used to configure the <see cref="BinderOptions"/>.</param>
-    /// <returns>The <see cref="OptionsBuilder{TOptions}"/> so that additional calls can be chained.</returns>
+    /// <typeparam name="TOptions">Het type van de opties dat moet worden geconfigureerd.</typeparam>
+    /// <param name="optionsBuilder">De opties builder waaraan de services moeten worden toegevoegd.</param>
+    /// <param name="configSectionPath">De naam van de configuratiesectie waarvan moet worden gebonden.</param>
+    /// <param name="configureBinder">Optioneel. Wordt gebruikt om de <see cref="BinderOptions"/> in te stellen.</param>
+    /// <returns>De <see cref="OptionsBuilder{TOptions}"/> zodat aanvullende aanroepen kunnen worden geketend.</returns>
     /// <exception cref="ArgumentNullException">
-    /// <paramref name="optionsBuilder"/> or <paramref name="configSectionPath" /> is <see langword="null"/>.
+    /// <paramref name="optionsBuilder"/> of <paramref name="configSectionPath"/> is <see langword="null"/>.
     /// </exception>
-    /// <seealso cref="Bind{TOptions}(OptionsBuilder{TOptions}, IConfiguration, Action{BinderOptions})"/>
     public static OptionsBuilder<TOptions> BindConfigurationPerTenant<TOptions>(
         this OptionsBuilder<TOptions> optionsBuilder,
         string configSectionPath,
@@ -29,8 +28,6 @@ public static class OptionsBuilderExtensions
     )
         where TOptions : class
     {
-        // Implementatie Gebaseerd op OptionsBuilderConfigurationExtensions.BindConfiguration(), maar dan met ConfigurePerTenant ipv Configure.
-
         ArgumentNullException.ThrowIfNull(optionsBuilder);
         ArgumentNullException.ThrowIfNull(configSectionPath);
 

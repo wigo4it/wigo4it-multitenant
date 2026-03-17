@@ -14,9 +14,6 @@ namespace Wigo4it.MultiTenant;
 /// kunnen bepalen. Zo houden we het aantal instellingen beperkt. Het beperken van dit aantal is belangrijk omdat AddAzureConfiguration
 /// bij het opstarten alle keys wilt inlezen. Dit zou dan waarschijnlijk leiden tot throttling / failed starts vanuit Azure.
 ///
-/// In de wegwijzer en deze library heeft het woord "Tenant" verschillende betekenissen. In de Wegwijzer is een tenant
-/// een G4 gemeente / Wigo4it. In deze library is `Wigo4itTenantInfo` een (rand)gemeente, in deze class wordt de vertaling gedaan.
-///
 /// Deze code is grotendeels geinspireerd door
 /// https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/eafec795fe93cf6e77a855e5cae7ea124d1a5557/src/Finbuckle.MultiTenant/Stores/ConfigurationStore.cs
 /// </summary>
@@ -42,7 +39,7 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
             from wegwijzerTenant in _rootConfiguration.GetSection(SectionNames.TenantsSectie).GetChildren()
             from environment in wegwijzerTenant.GetSection(SectionNames.EnvironmentsSectie).GetChildren()
             from gemeenteTenantSectie in environment.GetSection(SectionNames.GemeentenSectie).GetChildren()
-            select CreateTennantInfo(gemeenteTenantSectie, environment, wegwijzerTenant);
+            select CreateTenantInfo(gemeenteTenantSectie, environment, wegwijzerTenant);
 
         _tenantMap = tenants.ToDictionary(
             x => x.Identifier?.ToLower() ?? throw new ArgumentException("Tenant without Identifier found in config."),
@@ -50,12 +47,14 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
         );
     }
 
-    private TTenantInfo CreateTennantInfo(
+    private TTenantInfo CreateTenantInfo(
         IConfigurationSection gemeenteTenantSectie,
         IConfigurationSection environment,
         IConfigurationSection wegwijzerTenant
     )
     {
+        // "defaults" als apart level is een obsolete feature, alleen bedoeld voor backwards compatibility met Financien.Service.
+        // Wanneer deze hier geen gebruik meer van maakt kan dit worden opgeruimd.
         var mergedConfiguration = new MultiLevelConfiguration(
             gemeenteTenantSectie,
             environment.GetSection("defaults"),
