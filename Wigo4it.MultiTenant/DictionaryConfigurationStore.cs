@@ -14,52 +14,32 @@ namespace Wigo4it.MultiTenant;
 /// kunnen bepalen. Zo houden we het aantal instellingen beperkt. Het beperken van dit aantal is belangrijk omdat AddAzureConfiguration
 /// bij het opstarten alle keys wilt inlezen. Dit zou dan waarschijnlijk leiden tot throttling / failed starts vanuit Azure.
 ///
-/// In de wegwijzer en deze library heeft het woord "Tenant" verschillende betekenissen. In de Wegwijzer is een tenant
-/// een G4 gemeente / Wigo4it. In deze library is `Wigo4itTenantInfo` een (rand)gemeente, in deze class wordt de vertaling gedaan.
-///
 /// Deze code is grotendeels geinspireerd door
 /// https://github.com/Finbuckle/Finbuckle.MultiTenant/blob/eafec795fe93cf6e77a855e5cae7ea124d1a5557/src/Finbuckle.MultiTenant/Stores/ConfigurationStore.cs
 /// </summary>
 public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTenantInfo>
     where TTenantInfo : Wigo4itTenantInfo
 {
-    private readonly IConfigurationSection _sectie;
+    private readonly IConfiguration _rootConfiguration;
     private Dictionary<string, TTenantInfo>? _tenantMap;
-
-    private const string ConfiguratieSectie = "Tenants";
-    private const string EnvironmentsSectie = "Environments";
-    private const string DefaultsSectie = "Defaults";
-    private const string GemeentenSectie = "Gemeenten";
 
     public DictionaryConfigurationStore(IConfiguration configuration)
     {
         ArgumentNullException.ThrowIfNull(configuration);
 
-        _sectie = configuration.GetSection(ConfiguratieSectie);
+        _rootConfiguration = configuration;
 
         UpdateTenantMap();
-        ChangeToken.OnChange(_sectie.GetReloadToken, UpdateTenantMap);
+        ChangeToken.OnChange(_rootConfiguration.GetReloadToken, UpdateTenantMap);
     }
 
     private void UpdateTenantMap()
     {
         var tenants =
-            from wegwijzerTenant in _sectie.GetChildren()
-            from environment in wegwijzerTenant.GetSection(EnvironmentsSectie).GetChildren()
-            from gemeenteTenantSectie in environment.GetSection(GemeentenSectie).GetChildren()
-            let defaultTenant = environment
-                .GetSection(DefaultsSectie)
-                .Get<TTenantInfo>(options => options.BindNonPublicProperties = true)
-            let specificTenant = OverrideDefaults(defaultTenant, gemeenteTenantSectie)
-            select specificTenant with
-            {
-                Options = new Wigo4itTenantOptions
-                {
-                    EnvironmentName = environment.Key,
-                    TenantCode = wegwijzerTenant.Key,
-                    GemeenteCode = gemeenteTenantSectie.Key,
-                },
-            };
+            from wegwijzerTenant in _rootConfiguration.GetSection(SectionNames.TenantsSectie).GetChildren()
+            from environment in wegwijzerTenant.GetSection(SectionNames.EnvironmentsSectie).GetChildren()
+            from gemeenteTenantSectie in environment.GetSection(SectionNames.GemeentenSectie).GetChildren()
+            select CreateTenantInfo(gemeenteTenantSectie, environment, wegwijzerTenant);
 
         _tenantMap = tenants.ToDictionary(
             x => x.Identifier?.ToLower() ?? throw new ArgumentException("Tenant without Identifier found in config."),
@@ -67,13 +47,40 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
         );
     }
 
-    private static TTenantInfo OverrideDefaults(
-        TTenantInfo gemeenteTenantWithDefaults,
-        IConfigurationSection gemeenteTenantSectie
+    private TTenantInfo CreateTenantInfo(
+        IConfigurationSection gemeenteTenantSectie,
+        IConfigurationSection environment,
+        IConfigurationSection wegwijzerTenant
     )
     {
-        gemeenteTenantSectie.Bind(gemeenteTenantWithDefaults, options => options.BindNonPublicProperties = true);
-        return gemeenteTenantWithDefaults;
+        // "defaults" als apart level is een obsolete feature, alleen bedoeld voor backwards compatibility met Financien.Service.
+        // Wanneer deze hier geen gebruik meer van maakt kan dit worden opgeruimd.
+        var mergedConfiguration = new MultiLevelConfiguration(
+            gemeenteTenantSectie,
+            environment.GetSection("defaults"),
+            environment,
+            wegwijzerTenant.GetSection("defaults"),
+            wegwijzerTenant,
+            _rootConfiguration
+        );
+        var identifier = $"{wegwijzerTenant.Key}-{environment.Key}-{gemeenteTenantSectie.Key}";
+        var tenantInfo =
+            mergedConfiguration.Get<TTenantInfo>(options => options.BindNonPublicProperties = true)
+            ?? throw new InvalidOperationException(
+                $"Failed to bind tenant configuration for type {typeof(TTenantInfo).Name} and tenant {identifier}."
+            );
+
+        return tenantInfo with
+        {
+            Identifier = identifier,
+            Configuration = mergedConfiguration,
+            Options = new Wigo4itTenantOptions
+            {
+                TenantCode = wegwijzerTenant.Key,
+                EnvironmentName = environment.Key,
+                GemeenteCode = gemeenteTenantSectie.Key,
+            },
+        };
     }
 
     public Task<TTenantInfo?> GetAsync(string id)
@@ -125,8 +132,5 @@ public class DictionaryConfigurationStore<TTenantInfo> : IMultiTenantStore<TTena
     }
 }
 
-public class DictionaryConfigurationStore : DictionaryConfigurationStore<Wigo4itTenantInfo>
-{
-    public DictionaryConfigurationStore(IConfiguration configuration)
-        : base(configuration) { }
-}
+public class DictionaryConfigurationStore(IConfiguration configuration)
+    : DictionaryConfigurationStore<Wigo4itTenantInfo>(configuration);

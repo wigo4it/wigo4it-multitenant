@@ -1,4 +1,5 @@
 ﻿using Finbuckle.MultiTenant.Abstractions;
+using Microsoft.Extensions.Configuration;
 
 namespace Wigo4it.MultiTenant;
 
@@ -18,10 +19,7 @@ public record Wigo4itTenantInfo : ITenantInfo
     /// </summary>
     public required string Identifier { get; init; }
 
-    /// <summary>
-    /// De connectionstring naar de database voor deze tenant
-    /// </summary>
-    public required string ConnectionString { get; set; }
+    public required IConfiguration Configuration { get; init; }
 
     public required Wigo4itTenantOptions Options { get; init; }
 }
