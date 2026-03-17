@@ -119,12 +119,7 @@ public class MultiLevelConfigurationTests
             .WithStore<DictionaryConfigurationStore>(ServiceLifetime.Singleton)
             .WithStaticStrategy("9446-dev-0363");
 
-        services.ConfigurePerTenant<MyOptions, Wigo4itTenantInfo>(
-            (options, tenant) =>
-            {
-                tenant.Configuration.Bind("MyOptions", options);
-            }
-        );
+        services.AddOptions<MyOptions>().BindConfigurationPerTenant("MyOptions");
 
         await using var serviceProvider = services.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
