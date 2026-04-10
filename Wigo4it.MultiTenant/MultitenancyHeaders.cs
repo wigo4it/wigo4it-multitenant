@@ -2,7 +2,7 @@
 
 public static class MultitenancyHeaders
 {
-    public static readonly string WegwijzerTenantCode = "Wigo4it.Wegwijzer.TenantCode";
-    public static readonly string WegwijzerEnvironmentName = "Wigo4it.Wegwijzer.EnvironmentName";
-    public static readonly string GemeenteCode = "Wigo4it.Socrates.GemeenteCode";
+    public const string WegwijzerTenantCode = "Wigo4it.Wegwijzer.TenantCode";
+    public const string WegwijzerEnvironmentName = "Wigo4it.Wegwijzer.EnvironmentName";
+    public const string GemeenteCode = "Wigo4it.Socrates.GemeenteCode";
 }
