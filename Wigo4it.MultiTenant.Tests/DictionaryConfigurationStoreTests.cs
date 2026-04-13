@@ -136,7 +136,7 @@ public class DictionaryConfigurationStoreTests
     [Test]
     public async Task Id_should_not_be_null()
     {
-        // This is important for Finbuckle IOptions caching to work correctly
+        // Dit is belangrijk zodat Finbuckle IOptions caching correct werkt
         ITenantInfo? tenant0599 = await _sut.GetByIdentifierAsync("9446-xyz-0599");
         Assert.That(tenant0599, Is.Not.Null);
 

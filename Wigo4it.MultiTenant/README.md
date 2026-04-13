@@ -18,7 +18,7 @@ builder.Services.AddWigo4itMultiTenant<MyTenantInfo>(tenantIdentifierResolver);
 ```
 
 `tenantIdentifierResolver` is een `Func<object, Task<string?>> tenantIdentifierResolver` die de Tenant Identifier bepaalt op basis van de request context. Het type van de context is afhankelijk van het type applicatie. Voor een ASP.Net app zal dit een `HttpContext` zijn, voor NServiceBus een `IIncomingPhysicalMessageContext`. 
-Voorgedefinieerde `tenantIdentifierResolver`s per type applicatie zijn beschikbaar in de specifieke packages (bijvoorbeeld `NServiceBusTenantIdResolver.DetermineTenantIdentifier` in `Wigo4it.MultiTenant.NServiceBus`).
+Voorgedefinieerde `tenantIdentifierResolver`s per type applicatie zijn beschikbaar in de specifieke packages (bijvoorbeeld `AspNetCoreTenantIdResolver.DetermineTenantIdentifier` in `Wigo4it.MultiTenant.AspNetCore` en `NServiceBusTenantIdResolver.DetermineTenantIdentifier` in `Wigo4it.MultiTenant.NServiceBus`).
 
 ## Configuratiestructuur
 

@@ -9,8 +9,8 @@ using Wigo4it.MultiTenant.NServiceBus.Sample;
 namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
 
 /// <summary>
-/// Custom WebApplicationFactory for integration testing the multi-tenant NServiceBus sample application.
-/// This factory configures the test server with appropriate settings for integration testing.
+/// Aangepaste WebApplicationFactory voor integratietesten van de multi-tenant NServiceBus voorbeeldapplicatie.
+/// Deze factory configureert de testserver met de juiste instellingen voor integratietesten.
 /// </summary>
 public class TestWebApplicationFactory(Action<IConfigurationBuilder>? configureConfiguration = null)
     : WebApplicationFactory<Program>
@@ -21,10 +21,10 @@ public class TestWebApplicationFactory(Action<IConfigurationBuilder>? configureC
         {
             var endpoint = SampleEndpointConfiguration.Create(ctx);
 
-            // Configure the endpoint with test-friendly defaults
+            // Configureer het eindpunt met testvriendelijke standaardinstellingen
             endpoint.ConfigureTestEndpoint();
 
-            // Re-set storage directory after ConfigureTestEndpoint replaces the transport
+            // Herstel de opslagmap nadat ConfigureTestEndpoint het transport vervangt
             var transport = endpoint.UseTransport<LearningTransport>();
             transport.StorageDirectory(Path.Combine(ctx.HostingEnvironment.ContentRootPath, ".nsbtransport"));
 

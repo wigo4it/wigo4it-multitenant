@@ -5,7 +5,7 @@ using NServiceBus.Transport;
 namespace Wigo4it.MultiTenant.NserviceBus.Tests;
 
 /// <summary>
-/// Test helper class to mock IIncomingPhysicalMessageContext for testing purposes.
+/// Testhelperklasse om IIncomingPhysicalMessageContext te mocken voor testdoeleinden.
 /// </summary>
 internal class TestIncomingPhysicalMessageContext(IncomingMessage message) : IIncomingPhysicalMessageContext
 {
