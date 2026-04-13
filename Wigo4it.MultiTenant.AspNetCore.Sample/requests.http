@@ -1,0 +1,30 @@
+### Sample AspNetCore Multi-Tenant API Tests
+
+# JWT token with tenant claims for tenant 9446-dev-0518
+# Claims:
+# - w4-ww-tenant: 9446
+# - w4-ww-env: dev
+# - w4-ww-gemeente: 0518
+@token_dev_0518=eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ3NC13dy10ZW5hbnQiOiAiOTQ0NiIsICJ3NC13dy1lbnYiOiAiZGV2IiwgInc0LXd3LWdlbWVlbnRlIjogIjA1MTgifQ.dummysignature
+
+# JWT token with tenant claims for tenant 9446-test-0599
+# Claims:
+# - w4-ww-tenant: 9446
+# - w4-ww-env: test
+# - w4-ww-gemeente: 0599
+@token_test_0599=eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ3NC13dy10ZW5hbnQiOiAiOTQ0NiIsICJ3NC13dy1lbnYiOiAidGVzdCIsICJ3NC13dy1nZW1lZW50ZSI6ICIwNTk5In0.dummysignature
+
+@host=http://localhost:5000
+
+### Health check
+GET {{host}}/
+
+### Get tenant info for dev-0518 from claims
+GET {{host}}/tenant-info
+Authorization: Bearer {{token_dev_0518}}
+
+### Get tenant info for test-0599 from claims
+GET {{host}}/tenant-info
+Authorization: Bearer {{token_test_0599}}
+
+

@@ -1,4 +1,4 @@
-namespace Wigo4it.MultiTenant.NServiceBus.Sample;
+namespace Wigo4it.MultiTenant.AspNetCore.Sample;
 
 /// <summary>
 /// Voorbeeld opties klasse die tenant-specifieke configuratie demonstreert.
@@ -11,3 +11,4 @@ public class SampleTenantOptions
     /// </summary>
     public string? CustomSetting { get; set; }
 }
+

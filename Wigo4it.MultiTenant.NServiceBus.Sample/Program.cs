@@ -32,9 +32,9 @@ app.MapPost(
 
 app.UseMultiTenant();
 
-app.Run();
+await app.RunAsync();
 
-// Make Program class accessible for integration testing
+// Maak de Program klasse toegankelijk voor integratietesten
 public partial class Program
 {
     public static Func<HostBuilderContext, EndpointConfiguration> EndpointConfigurationBuilder = context =>

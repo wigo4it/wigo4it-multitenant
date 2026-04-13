@@ -5,6 +5,7 @@ Multi-tenant ondersteuning voor Wigo4it applicaties, gebouwd op Finbuckle.MultiT
 ## Wat vind je hier
 
 - [Wigo4it.MultiTenant](Wigo4it.MultiTenant/README.md): basis multi-tenant functionaliteit met configuratie per tenant.
+- [Wigo4it.MultiTenant.AspNetCore](Wigo4it.MultiTenant.AspNetCore/README.md): ASP.NET Core middleware en resolver die tenant uit token claims bepaalt.
 - [Wigo4it.MultiTenant.NServiceBus](Wigo4it.MultiTenant.NServiceBus/README.md): NServiceBus-integratie die tenant headers resolved en op basis daarvan de tenant-specifieke configuratie laadt.
 - [Wigo4it.MultiTenant.NServiceBus.Sample](Wigo4it.MultiTenant.NServiceBus.Sample): end-to-end voorbeeldapplicatie.
 - Testsuites voor unit- en integratietests.
@@ -29,13 +30,15 @@ Een Tenant in Wigo4it context is gedefinieerd als een individuele (rand)gemeente
 ## Hoe de packages samenwerken
 
 1. **Wigo4it.MultiTenant** resolved de tenant (bijvoorbeeld uit HTTP headers) en bindt configuratie naar jouw `TenantInfo` subtype. `ConfigurePerTenant` projecteert deze waarden naar `IOptions<Wigo4itTenantOptions>` per request.
-2. **Wigo4it.MultiTenant.NServiceBus** haalt dezelfde headers uit inkomende berichten, zet de tenantcontext en zet op uitgaande berichten dezelfde headers op basis van `IOptions<Wigo4itTenantOptions>`
-3. De sample app laat zien hoe beide samen worden gebruikt.
+2. **Wigo4it.MultiTenant.AspNetCore** leest tenantclaims uit het inkomende token, bouwt de tenant identifier op en activeert `UseMultiTenant()` in de juiste middleware-volgorde.
+3. **Wigo4it.MultiTenant.NServiceBus** haalt dezelfde headers uit inkomende berichten, zet de tenantcontext en zet op uitgaande berichten dezelfde headers op basis van `IOptions<Wigo4itTenantOptions>`
+4. De sample app laat zien hoe beide samen worden gebruikt.
 
 ## Snel starten
 
 1. Kies het pakket:
    - Web/worker zonder NServiceBus? Gebruik `dotnet add package Wigo4it.MultiTenant`.
+   - ASP.NET Core API met JWT claims? Gebruik `dotnet add package Wigo4it.MultiTenant.AspNetCore`.
    - NServiceBus endpoint? Gebruik `dotnet add package Wigo4it.MultiTenant.NServiceBus`.
 2. Volg de stappen in de betreffende README voor configuratie en options mapping.
 3. Bekijk de sample voor een volledige referentie-configuratie en message flow.
@@ -43,11 +46,13 @@ Een Tenant in Wigo4it context is gedefinieerd als een individuele (rand)gemeente
 ## Documentatie per pakket
 
 - [Basisbibliotheek](Wigo4it.MultiTenant/README.md) – configuratiestructuur, options mapping, best practices en troubleshooting.
+- [ASP.NET Core integratie](Wigo4it.MultiTenant.AspNetCore/README.md) – middleware, claim-based tenant-resolutie en pipeline-volgorde.
 - [NServiceBus integratie](Wigo4it.MultiTenant.NServiceBus/README.md) – pipeline-setup, message handlers, tenant headers op uitgaande berichten en performance tips.
 
 ## Tests en voorbeelden
 
 - Unit tests: zie [Wigo4it.MultiTenant.Tests](Wigo4it.MultiTenant.Tests) voor configuratie- en resolver-tests.
+- ASP.NET Core tests: zie [Wigo4it.MultiTenant.AspNetCore.Tests](Wigo4it.MultiTenant.AspNetCore.Tests) voor claim-based resolver en middleware tests.
 - Race-condition tests: zie [Wigo4it.MultiTenant.NserviceBus.Tests](Wigo4it.MultiTenant.NserviceBus.Tests) voor concurrency scenarios met `IOptions`.
 - Integratietests: zie [Wigo4it.MultiTenant.NServiceBus.IntegrationTests](Wigo4it.MultiTenant.NServiceBus.IntegrationTests).
 - Voorbeeldapp: zie [Wigo4it.MultiTenant.NServiceBus.Sample](Wigo4it.MultiTenant.NServiceBus.Sample).

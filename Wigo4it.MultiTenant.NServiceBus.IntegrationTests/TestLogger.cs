@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 namespace Wigo4it.MultiTenant.NServiceBus.IntegrationTests;
 
 /// <summary>
-/// Custom logger provider for capturing log entries during tests.
+/// Aangepaste logger provider voor het vastleggen van logregels tijdens tests.
 /// </summary>
 internal class TestLoggerProvider : ILoggerProvider
 {
@@ -20,7 +20,7 @@ internal class TestLoggerProvider : ILoggerProvider
 }
 
 /// <summary>
-/// Custom logger for capturing individual log entries.
+/// Aangepaste logger voor het vastleggen van afzonderlijke logregels.
 /// </summary>
 internal class TestLogger(string category, List<LogEntry> logs) : ILogger
 {
@@ -48,7 +48,7 @@ internal class TestLogger(string category, List<LogEntry> logs) : ILogger
 }
 
 /// <summary>
-/// Represents a captured log entry.
+/// Vertegenwoordigt een vastgelegde logregel.
 /// </summary>
 internal class LogEntry
 {

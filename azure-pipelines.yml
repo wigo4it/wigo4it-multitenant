@@ -108,6 +108,20 @@ steps:
       arguments: '/p:Version=$(GitVersion.fullSemVer)'
 
   - task: DotNetCoreCLI@2
+    displayName: 'Pack Wigo4it.MultiTenant.AspNetCore'
+    env:
+      DOTNET_PACK_VERSION: $(GitVersion.fullSemVer)
+    inputs:
+      command: pack
+      packagesToPack: './Wigo4it.MultiTenant.AspNetCore/Wigo4it.MultiTenant.AspNetCore.csproj'
+      configuration: $(CONFIGURATION)
+      nobuild: true
+      packDirectory: '$(Build.ArtifactStagingDirectory)'
+      versioningScheme: 'byEnvVar'
+      versionEnvVar: 'DOTNET_PACK_VERSION'
+      arguments: '/p:Version=$(GitVersion.fullSemVer)'
+
+  - task: DotNetCoreCLI@2
     displayName: 'Pack Wigo4it.MultiTenant.NServiceBus'
     env:
       DOTNET_PACK_VERSION: $(GitVersion.fullSemVer)
