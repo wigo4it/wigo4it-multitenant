@@ -7,9 +7,9 @@ public class OutgoingTenantHeadersMutator(IOptions<Wigo4itTenantOptions> tenantO
 {
     public Task MutateOutgoing(MutateOutgoingMessageContext context)
     {
-        context.OutgoingHeaders[MultitenancyHeaders.WegwijzerTenantCode] = tenantOptions.Value.TenantCode;
-        context.OutgoingHeaders[MultitenancyHeaders.WegwijzerEnvironmentName] = tenantOptions.Value.EnvironmentName;
-        context.OutgoingHeaders[MultitenancyHeaders.GemeenteCode] = tenantOptions.Value.GemeenteCode;
+        context.OutgoingHeaders[MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = tenantOptions.Value.TenantCode;
+        context.OutgoingHeaders[MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = tenantOptions.Value.EnvironmentName;
+        context.OutgoingHeaders[MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = tenantOptions.Value.GemeenteCode;
 
         return Task.CompletedTask;
     }

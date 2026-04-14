@@ -149,9 +149,9 @@ public class RaceConditionTests
     {
         var incomingContext = new MessageContextWithServiceProvider(_services!);
 
-        incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerTenantCode, tenant.Options.TenantCode);
-        incomingContext.Message.Headers.Add(MultitenancyHeaders.WegwijzerEnvironmentName, tenant.Options.EnvironmentName);
-        incomingContext.Message.Headers.Add(MultitenancyHeaders.GemeenteCode, tenant.Options.GemeenteCode);
+        incomingContext.Message.Headers.Add(MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode, tenant.Options.TenantCode);
+        incomingContext.Message.Headers.Add(MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName, tenant.Options.EnvironmentName);
+        incomingContext.Message.Headers.Add(MultitenancyIdentifiers.MessageHeaders.GemeenteCode, tenant.Options.GemeenteCode);
 
         await new MultiTenantBehavior(_ => { }).Invoke(incomingContext, next);
     }

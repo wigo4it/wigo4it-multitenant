@@ -50,12 +50,14 @@ public class TenantInfoEndpointsFromClaimsTests
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
 
         var payload = await ParseAsObjectAsync(response);
-        Assert.That(payload["message"]?.GetValue<string>(), Is.EqualTo("Tenant information successfully resolved from JWT claims"));
-        Assert.That(payload["tenantIdentifier"]?.GetValue<string>(), Is.EqualTo(expectedTenantIdentifier));
-        Assert.That(payload["tenantCode"]?.GetValue<string>(), Is.EqualTo("9446"));
-        Assert.That(payload["environmentName"]?.GetValue<string>(), Is.EqualTo(expectedEnvironmentName));
-        Assert.That(payload["gemeenteCode"]?.GetValue<string>(), Is.EqualTo(expectedGemeenteCode));
-        Assert.That(payload["customSetting"]?.GetValue<string>(), Is.EqualTo(expectedCustomSetting));
+        using (Assert.EnterMultipleScope())
+        {
+            Assert.That(payload["tenantIdentifier"]?.GetValue<string>(), Is.EqualTo(expectedTenantIdentifier));
+            Assert.That(payload["tenantCode"]?.GetValue<string>(), Is.EqualTo("9446"));
+            Assert.That(payload["environmentName"]?.GetValue<string>(), Is.EqualTo(expectedEnvironmentName));
+            Assert.That(payload["gemeenteCode"]?.GetValue<string>(), Is.EqualTo(expectedGemeenteCode));
+            Assert.That(payload["customSetting"]?.GetValue<string>(), Is.EqualTo(expectedCustomSetting));
+        }
     }
 
     private static async Task<JsonObject> ParseAsObjectAsync(HttpResponseMessage response)

@@ -1,6 +1,5 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
-using Wigo4it.MultiTenant.AspNetCore;
 
 namespace Wigo4it.MultiTenant.AspNetCore.Tests;
 
@@ -11,9 +10,9 @@ public class AspNetCoreTenantIdFromClaimsResolverTests
     public async Task DetermineTenantIdentifier_WithAuthenticatedUserAndClaims_ReturnsIdentifier()
     {
         var context = CreateContextWithClaims(
-            (MultitenancyClaims.WegwijzerTenantCode, "9446"),
-            (MultitenancyClaims.WegwijzerEnvironmentName, "0518pr1"),
-            (MultitenancyClaims.GemeenteCode, "0001")
+            (MultitenancyIdentifiers.Claims.WegwijzerTenantCode, "9446"),
+            (MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName, "0518pr1"),
+            (MultitenancyIdentifiers.Claims.GemeenteCode, "0001")
         );
 
         var identifier = await AspNetCoreTenantIdFromClaimsResolver.DetermineTenantIdentifier(context);
@@ -25,8 +24,8 @@ public class AspNetCoreTenantIdFromClaimsResolverTests
     public async Task DetermineTenantIdentifier_WithMissingClaim_ReturnsNull()
     {
         var context = CreateContextWithClaims(
-            (MultitenancyClaims.WegwijzerTenantCode, "9446"),
-            (MultitenancyClaims.WegwijzerEnvironmentName, "0518pr1")
+            (MultitenancyIdentifiers.Claims.WegwijzerTenantCode, "9446"),
+            (MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName, "0518pr1")
         );
 
         var identifier = await AspNetCoreTenantIdFromClaimsResolver.DetermineTenantIdentifier(context);
