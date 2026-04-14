@@ -5,8 +5,6 @@ namespace Wigo4it.MultiTenant.AspNetCore;
 
 /// <summary>
 /// Resolveert de tenant identifier voor ASP.NET Core requests op basis van HTTP headers.
-/// Eerst wordt een eerder bepaalde waarde uit <see cref="HttpContext.Items"/> gebruikt,
-/// daarna worden de tenant-gerelateerde headers gelezen.
 /// </summary>
 public static class AspNetCoreTenantIdFromHeadersResolver
 {
@@ -16,8 +14,7 @@ public static class AspNetCoreTenantIdFromHeadersResolver
     /// </summary>
     public static Task<string?> DetermineTenantIdentifier(object context)
     {
-        var httpContext = (HttpContext)context;
-        return Task.FromResult(httpContext.Request.Headers.CaptureTenantIdentifier());
+        return Task.FromResult(context is HttpContext httpContext ? httpContext.Request.Headers.CaptureTenantIdentifier() : null);
     }
 
     /// <summary>

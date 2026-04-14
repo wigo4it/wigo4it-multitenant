@@ -4,9 +4,7 @@ using Microsoft.AspNetCore.Http;
 namespace Wigo4it.MultiTenant.AspNetCore;
 
 /// <summary>
-/// Resolveert de tenant identifier voor ASP.NET Core requests.
-/// Eerst wordt een eerder bepaalde waarde uit <see cref="HttpContext.Items"/> gebruikt,
-/// daarna worden de claims uit het inkomende token gelezen.
+/// Resolvet de tenant identifier voor ASP.NET Core requests op basis van claims in de authenticated principal.
 /// </summary>
 public static class AspNetCoreTenantIdFromClaimsResolver
 {
@@ -16,7 +14,10 @@ public static class AspNetCoreTenantIdFromClaimsResolver
     /// </summary>
     public static Task<string?> DetermineTenantIdentifier(object context)
     {
-        var httpContext = (HttpContext)context;
+        if (context is not HttpContext httpContext)
+        {
+            return Task.FromResult<string?>(null);
+        }
         return Task.FromResult(httpContext.User.CaptureTenantIdentifier());
     }
 
