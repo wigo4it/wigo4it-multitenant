@@ -13,7 +13,7 @@ public static class SampleEndpointConfiguration
         endpointConfiguration.UseSerialization<SystemJsonSerializer>();
         endpointConfiguration.EnableInstallers();
 
-        endpointConfiguration.UseWigo4itMultiTenant(_ => { });
+        endpointConfiguration.UseWigo4itMultiTenant();
 
         configure?.Invoke(endpointConfiguration);
 
