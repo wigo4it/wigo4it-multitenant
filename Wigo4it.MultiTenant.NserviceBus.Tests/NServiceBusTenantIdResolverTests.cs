@@ -12,9 +12,9 @@ public class NServiceBusTenantIdResolverTests
         // Arrange
         var headers = new Dictionary<string, string>
         {
-            [MultitenancyHeaders.WegwijzerTenantCode] = "9446",
-            [MultitenancyHeaders.WegwijzerEnvironmentName] = "0518pr1",
-            [MultitenancyHeaders.GemeenteCode] = "0001",
+            [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = "9446",
+            [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = "0518pr1",
+            [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = "0001",
         };
         var message = new IncomingMessage("messageId", headers, Array.Empty<byte>());
         var context = new TestIncomingPhysicalMessageContext(message);
@@ -38,9 +38,9 @@ public class NServiceBusTenantIdResolverTests
         // Arrange
         var headers = new Dictionary<string, string>
         {
-            [MultitenancyHeaders.WegwijzerTenantCode] = tenantCode,
-            [MultitenancyHeaders.WegwijzerEnvironmentName] = environmentName,
-            [MultitenancyHeaders.GemeenteCode] = gemeenteCode,
+            [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = tenantCode,
+            [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = environmentName,
+            [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = gemeenteCode,
         };
         var message = new IncomingMessage("messageId", headers, Array.Empty<byte>());
 
@@ -126,8 +126,8 @@ public class NServiceBusTenantIdResolverTests
         yield return new TestCaseData(
             new Dictionary<string, string>
             {
-                [MultitenancyHeaders.WegwijzerEnvironmentName] = "0518pr1",
-                [MultitenancyHeaders.GemeenteCode] = "0001",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = "0518pr1",
+                [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = "0001",
             },
             "Missing WegwijzerTenantCode header"
         ).SetName("Missing tenant code header");
@@ -135,8 +135,8 @@ public class NServiceBusTenantIdResolverTests
         yield return new TestCaseData(
             new Dictionary<string, string>
             {
-                [MultitenancyHeaders.WegwijzerTenantCode] = "9446",
-                [MultitenancyHeaders.GemeenteCode] = "0001",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = "9446",
+                [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = "0001",
             },
             "Missing WegwijzerEnvironmentName header"
         ).SetName("Missing environment name header");
@@ -144,8 +144,8 @@ public class NServiceBusTenantIdResolverTests
         yield return new TestCaseData(
             new Dictionary<string, string>
             {
-                [MultitenancyHeaders.WegwijzerTenantCode] = "0518",
-                [MultitenancyHeaders.WegwijzerEnvironmentName] = "0363ac2",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = "0518",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = "0363ac2",
             },
             "Missing GemeenteCode header"
         ).SetName("Missing gemeente code header");
@@ -163,9 +163,9 @@ public class NServiceBusTenantIdResolverTests
         yield return new TestCaseData(
             new Dictionary<string, string?>
             {
-                [MultitenancyHeaders.WegwijzerTenantCode] = null,
-                [MultitenancyHeaders.WegwijzerEnvironmentName] = "0344so1",
-                [MultitenancyHeaders.GemeenteCode] = "0001",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = null,
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = "0344so1",
+                [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = "0001",
             },
             "-0344so1-0001"
         ).SetName("Null tenant code value");
@@ -173,9 +173,9 @@ public class NServiceBusTenantIdResolverTests
         yield return new TestCaseData(
             new Dictionary<string, string?>
             {
-                [MultitenancyHeaders.WegwijzerTenantCode] = "0599",
-                [MultitenancyHeaders.WegwijzerEnvironmentName] = null,
-                [MultitenancyHeaders.GemeenteCode] = "0001",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = "0599",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = null,
+                [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = "0001",
             },
             "0599--0001"
         ).SetName("Null environment name value");
@@ -183,9 +183,9 @@ public class NServiceBusTenantIdResolverTests
         yield return new TestCaseData(
             new Dictionary<string, string?>
             {
-                [MultitenancyHeaders.WegwijzerTenantCode] = "0363",
-                [MultitenancyHeaders.WegwijzerEnvironmentName] = "0599pr2",
-                [MultitenancyHeaders.GemeenteCode] = null,
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = "0363",
+                [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = "0599pr2",
+                [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = null,
             },
             "0363-0599pr2-"
         ).SetName("Null gemeente code value");

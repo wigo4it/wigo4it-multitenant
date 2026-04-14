@@ -14,8 +14,8 @@ public static class NServiceBusTenantIdResolver
 
     public static string CaptureTenantIdentifier(this IncomingMessage message)
     {
-        return $"{message.Headers[MultitenancyHeaders.WegwijzerTenantCode]}"
-            + $"-{message.Headers[MultitenancyHeaders.WegwijzerEnvironmentName]}"
-            + $"-{message.Headers[MultitenancyHeaders.GemeenteCode]}";
+        return $"{message.Headers[MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode]}"
+            + $"-{message.Headers[MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName]}"
+            + $"-{message.Headers[MultitenancyIdentifiers.MessageHeaders.GemeenteCode]}";
     }
 }

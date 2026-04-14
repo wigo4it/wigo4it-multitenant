@@ -32,9 +32,9 @@ public static class AspNetCoreTenantIdFromClaimsResolver
             return null;
         }
 
-        var tenantCode = principal.FindFirst(MultitenancyClaims.WegwijzerTenantCode)?.Value;
-        var environmentName = principal.FindFirst(MultitenancyClaims.WegwijzerEnvironmentName)?.Value;
-        var gemeenteCode = principal.FindFirst(MultitenancyClaims.GemeenteCode)?.Value;
+        var tenantCode = principal.FindFirst(MultitenancyIdentifiers.Claims.WegwijzerTenantCode)?.Value;
+        var environmentName = principal.FindFirst(MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName)?.Value;
+        var gemeenteCode = principal.FindFirst(MultitenancyIdentifiers.Claims.GemeenteCode)?.Value;
 
         if (
             string.IsNullOrWhiteSpace(tenantCode)
