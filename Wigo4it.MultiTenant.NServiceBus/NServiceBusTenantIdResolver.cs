@@ -7,9 +7,9 @@ public static class NServiceBusTenantIdResolver
 {
     public static Task<string?> DetermineTenantIdentifier(object context)
     {
-        var messageContext = (IIncomingPhysicalMessageContext)context;
-
-        return Task.FromResult<string?>(messageContext.Message.CaptureTenantIdentifier());
+        return context is not IIncomingPhysicalMessageContext messageContext
+            ? Task.FromResult<string?>(null)
+            : Task.FromResult<string?>(messageContext.Message.CaptureTenantIdentifier());
     }
 
     public static string CaptureTenantIdentifier(this IncomingMessage message)
