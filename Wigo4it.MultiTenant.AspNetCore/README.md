@@ -11,13 +11,14 @@ dotnet add package Wigo4it.MultiTenant.AspNetCore
 ## Setup in Program.cs
 
 ```csharp
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Wigo4it.MultiTenant;
 using Wigo4it.MultiTenant.AspNetCore;
 using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddAuthentication().AddJwtBearer();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
 
 builder.Services.AddWigo4itMultiTenantAspNetCore();

@@ -7,11 +7,11 @@ public static class ServiceCollectionExtensions
     extension(IServiceCollection services)
     {
         public IServiceCollection AddWigo4itMultiTenantAspNetCore<TTenantInfo>(
-            Action<Wigo4ItMultiTenantAspNetCoreOptions>? configure = null
+            Action<Wigo4itMultiTenantAspNetCoreOptions>? configure = null
         )
             where TTenantInfo : Wigo4itTenantInfo
         {
-            var options = new Wigo4ItMultiTenantAspNetCoreOptions();
+            var options = new Wigo4itMultiTenantAspNetCoreOptions();
             configure?.Invoke(options);
 
             Func<object, Task<string?>> resolver = options.TenantIdResolutionStrategy switch
@@ -23,7 +23,7 @@ public static class ServiceCollectionExtensions
             return services.AddWigo4itMultiTenant<TTenantInfo>(resolver);
         }
 
-        public IServiceCollection AddWigo4itMultiTenantAspNetCore(Action<Wigo4ItMultiTenantAspNetCoreOptions>? configure = null)
+        public IServiceCollection AddWigo4itMultiTenantAspNetCore(Action<Wigo4itMultiTenantAspNetCoreOptions>? configure = null)
         {
             return services.AddWigo4itMultiTenantAspNetCore<Wigo4itTenantInfo>(configure);
         }
