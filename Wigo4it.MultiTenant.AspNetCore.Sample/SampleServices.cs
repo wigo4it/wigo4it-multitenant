@@ -33,13 +33,9 @@ public static class SampleServices
 
         services.AddAuthorization();
 
-        // Strategy is configureerbaar voor dit sample, in de meeste productie applicaties zal dit hardcoded zijn
-        var strategyString = configuration.GetSection("Wigo4it:MultiTenant:TenantIdResolutionStrategy").Value 
-                             ?? throw new ArgumentException("Cannot determine tenant Id resolution strategy"); 
-        var strategy = Enum.Parse<TenantIdResolutionStrategy>(strategyString, ignoreCase: true);
-
-        // Configure multitenancy met geselecteerde strategy
-        services.AddWigo4itMultiTenantAspNetCore<SampleTenantInfo>(strategy);
+        // Configure multitenancy en bind ASP.NET Core opties rechtstreeks vanuit configuratie.
+        services.AddWigo4itMultiTenantAspNetCore<SampleTenantInfo>(options =>
+            configuration.GetSection("Wigo4it:MultiTenant").Bind(options));
 
         // Configureer SampleTenantOptions om per tenant te resolven vanuit configuratie
         services.ConfigurePerTenant<SampleTenantOptions, SampleTenantInfo>(
