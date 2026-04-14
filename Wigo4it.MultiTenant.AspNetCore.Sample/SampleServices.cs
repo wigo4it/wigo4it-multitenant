@@ -14,7 +14,7 @@ public static class SampleServices
     /// <summary>
     /// Configureert de voorbeeldservices met multitenancy ondersteuning.
     /// </summary>
-    public static IServiceCollection ConfigureSampleServices(this IServiceCollection services)
+    public static IServiceCollection ConfigureSampleServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Configureer JWT Bearer authenticatie zonder tokenvalidatie voor voorbeelddoeleinden.
         // In productie moet de juiste tokenvalidatie worden geconfigureerd.
@@ -33,12 +33,15 @@ public static class SampleServices
 
         services.AddAuthorization();
 
-        // Configureer multitenancy met de AspNetCore strategie via de tenant identifier uit de claims
-        services.AddWigo4itMultiTenant<SampleTenantInfo>(builder =>
-            builder.WithDelegateStrategy(AspNetCoreTenantIdFromClaimsResolver.DetermineTenantIdentifier)
-        );
+        // Strategy is configureerbaar voor dit sample, in de meeste productie applicaties zal dit hardcoded zijn
+        var strategyString = configuration.GetSection("Wigo4it:MultiTenant:TenantIdResolutionStrategy").Value 
+                             ?? throw new ArgumentException("Cannot determine tenant Id resolution strategy"); 
+        var strategy = Enum.Parse<TenantIdResolutionStrategy>(strategyString, ignoreCase: true);
 
-        // Configureer SampleTenantOptions om per tenant op te lossen vanuit configuratie
+        // Configure multitenancy met geselecteerde strategy
+        services.AddWigo4itMultiTenantAspNetCore<SampleTenantInfo>(strategy);
+
+        // Configureer SampleTenantOptions om per tenant te resolven vanuit configuratie
         services.ConfigurePerTenant<SampleTenantOptions, SampleTenantInfo>(
             (options, tenantInfo) =>
             {

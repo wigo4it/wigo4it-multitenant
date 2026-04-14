@@ -1,6 +1,6 @@
 # Wigo4it.MultiTenant.AspNetCore
 
-ASP.NET Core integratie voor `Wigo4it.MultiTenant`. Deze library leest tenant-identificerende claims uit het inkomende token en zet de tenant context via middleware + Finbuckle strategy.
+ASP.NET Core integratie voor `Wigo4it.MultiTenant`. Deze library leest tenant-identificerende claims of HTTP-headers en zet de tenant context via middleware + Finbuckle strategy.
 
 ## Installatie
 
@@ -39,6 +39,20 @@ app.Run();
 - `w4-ww-gemeente` (`MultitenancyClaims.GemeenteCode`)
 
 De tenant identifier wordt opgebouwd als `{tenantCode}-{environmentName}-{gemeenteCode}`.
+
+## Alternatief: headers gebruiken
+
+Geef `TenantIdResolutionStrategy.Headers` mee:
+
+```csharp
+builder.Services.AddWigo4itMultiTenantAspNetCore(TenantIdResolutionStrategy.Headers);
+```
+
+Benodigde headers:
+
+- `Wigo4it.Wegwijzer.TenantCode` (`MultitenancyHeaders.WegwijzerTenantCode`)
+- `Wigo4it.Wegwijzer.EnvironmentName` (`MultitenancyHeaders.WegwijzerEnvironmentName`)
+- `Wigo4it.Socrates.GemeenteCode` (`MultitenancyHeaders.GemeenteCode`)
 
 ## Middleware volgorde
 
