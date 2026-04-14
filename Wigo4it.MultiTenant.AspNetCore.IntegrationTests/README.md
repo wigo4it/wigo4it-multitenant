@@ -6,6 +6,8 @@ Gedekte scenario's (pariteit met `requests.http`):
 - `GET /` health check
 - `GET /tenant-info` met token `9446-dev-0518`
 - `GET /tenant-info` met token `9446-test-0599`
+- `GET /tenant-info` met `TenantIdResolutionStrategy.Headers` en headers voor `9446-dev-0518`
+- `GET /tenant-info` met `TenantIdResolutionStrategy.Headers` en headers voor `9446-test-0599`
 
 ## Run
 

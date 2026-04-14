@@ -107,9 +107,9 @@ app.MapPost("/send/{tenantCode}/{environmentName}/{gemeenteCode}",
         var sendOptions = new SendOptions();
         sendOptions.RouteToThisEndpoint();
 
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerTenantCode, tenantCode);
-        sendOptions.SetHeader(MultitenancyHeaders.WegwijzerEnvironmentName, environmentName);
-        sendOptions.SetHeader(MultitenancyHeaders.GemeenteCode, gemeenteCode);
+        sendOptions.SetHeader(MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode, tenantCode);
+        sendOptions.SetHeader(MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName, environmentName);
+        sendOptions.SetHeader(MultitenancyIdentifiers.MessageHeaders.GemeenteCode, gemeenteCode);
 
         await messageSession.Send(new MyMessage { /* payload */ }, sendOptions);
         return Results.Accepted();

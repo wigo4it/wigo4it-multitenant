@@ -5,7 +5,7 @@ Multi-tenant ondersteuning voor Wigo4it applicaties, gebouwd op Finbuckle.MultiT
 ## Wat vind je hier
 
 - [Wigo4it.MultiTenant](Wigo4it.MultiTenant/README.md): basis multi-tenant functionaliteit met configuratie per tenant.
-- [Wigo4it.MultiTenant.AspNetCore](Wigo4it.MultiTenant.AspNetCore/README.md): ASP.NET Core middleware en resolver die tenant uit token claims bepaalt.
+- [Wigo4it.MultiTenant.AspNetCore](Wigo4it.MultiTenant.AspNetCore/README.md): ASP.NET Core integratie die tenant uit token claims of HTTP-headers bepaalt.
 - [Wigo4it.MultiTenant.NServiceBus](Wigo4it.MultiTenant.NServiceBus/README.md): NServiceBus-integratie die tenant headers resolved en op basis daarvan de tenant-specifieke configuratie laadt.
 - [Wigo4it.MultiTenant.NServiceBus.Sample](Wigo4it.MultiTenant.NServiceBus.Sample): end-to-end voorbeeldapplicatie.
 - Testsuites voor unit- en integratietests.
@@ -19,18 +19,15 @@ Een Tenant in Wigo4it context is gedefinieerd als een individuele (rand)gemeente
   - `GemeenteCode`: De viercijferige gemeentecode van de individuele (rand)gemeente waarvoor het request bedoeld is. Voorbeeld: `0363` of `0321`.
 
 - **Tenant identifier**: Combineert bovenstaande drie gegevens tot een unieke identifier, volgens het formaat `{TenantCode}-{EnvironmentName}-{GemeenteCode}`, bijvoorbeeld `9446-0344so1-0321`.
-- **Headers** Om de tenant-identificerende gegevens door te geven maken we gebruik van drie headers:
-  - `Wigo4it.Wegwijzer.TenantCode`
-  - `Wigo4it.Wegwijzer.EnvironmentName`
-  - `Wigo4it.Socrates.GemeenteCode`
-
-  Beschikbaar via de statische class `MultitenancyHeaders` in `Wigo4it.MultiTenant`.
+- **Headers**
+  - Voor HTTP requests: `X-Wigo4it-Wegwijzer-TenantCode`, `X-Wigo4it-Wegwijzer-EnvironmentName`, `X-Wigo4it-Socrates-GemeenteCode` (`MultitenancyIdentifiers.HttpHeaders`).
+  - Voor NServiceBus berichten: `Wigo4it.Wegwijzer.TenantCode`, `Wigo4it.Wegwijzer.EnvironmentName`, `Wigo4it.Socrates.GemeenteCode` (`MultitenancyIdentifiers.MessageHeaders`).
 - **Configuratie-hiërarchie**: defaults per omgeving met overrides per gemeente. Dit wordt door `DictionaryConfigurationStore` samengevoegd tot een `Wigo4itTenantInfo` (of eigen subtype) per tenant.
 
 ## Hoe de packages samenwerken
 
 1. **Wigo4it.MultiTenant** resolved de tenant (bijvoorbeeld uit HTTP headers) en bindt configuratie naar jouw `TenantInfo` subtype. `ConfigurePerTenant` projecteert deze waarden naar `IOptions<Wigo4itTenantOptions>` per request.
-2. **Wigo4it.MultiTenant.AspNetCore** leest tenantclaims uit het inkomende token, bouwt de tenant identifier op en activeert `UseMultiTenant()` in de juiste middleware-volgorde.
+2. **Wigo4it.MultiTenant.AspNetCore** leest tenantgegevens uit claims of headers (configureerbaar), bouwt de tenant identifier op en activeert `UseMultiTenant()` in de juiste middleware-volgorde.
 3. **Wigo4it.MultiTenant.NServiceBus** haalt dezelfde headers uit inkomende berichten, zet de tenantcontext en zet op uitgaande berichten dezelfde headers op basis van `IOptions<Wigo4itTenantOptions>`
 4. De sample app laat zien hoe beide samen worden gebruikt.
 
@@ -52,7 +49,7 @@ Een Tenant in Wigo4it context is gedefinieerd als een individuele (rand)gemeente
 ## Tests en voorbeelden
 
 - Unit tests: zie [Wigo4it.MultiTenant.Tests](Wigo4it.MultiTenant.Tests) voor configuratie- en resolver-tests.
-- ASP.NET Core tests: zie [Wigo4it.MultiTenant.AspNetCore.Tests](Wigo4it.MultiTenant.AspNetCore.Tests) voor claim-based resolver en middleware tests.
+- ASP.NET Core tests: zie [Wigo4it.MultiTenant.AspNetCore.Tests](Wigo4it.MultiTenant.AspNetCore.Tests) voor claims- en header-resolver tests.
 - Race-condition tests: zie [Wigo4it.MultiTenant.NserviceBus.Tests](Wigo4it.MultiTenant.NserviceBus.Tests) voor concurrency scenarios met `IOptions`.
 - Integratietests: zie [Wigo4it.MultiTenant.NServiceBus.IntegrationTests](Wigo4it.MultiTenant.NServiceBus.IntegrationTests).
 - Voorbeeldapp: zie [Wigo4it.MultiTenant.NServiceBus.Sample](Wigo4it.MultiTenant.NServiceBus.Sample).
