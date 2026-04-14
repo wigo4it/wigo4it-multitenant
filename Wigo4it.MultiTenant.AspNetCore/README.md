@@ -13,6 +13,7 @@ dotnet add package Wigo4it.MultiTenant.AspNetCore
 ```csharp
 using Wigo4it.MultiTenant;
 using Wigo4it.MultiTenant.AspNetCore;
+using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,7 +27,7 @@ var app = builder.Build();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseWigo4itMultiTenantAspNetCore();
+app.UseMultiTenant();
 
 app.MapGet("/", () => "ok");
 app.Run();
@@ -34,9 +35,9 @@ app.Run();
 
 ## Benodigde claims in token
 
-- `w4-ww-tenant` (`MultitenancyClaims.WegwijzerTenantCode`)
-- `w4-ww-env` (`MultitenancyClaims.WegwijzerEnvironmentName`)
-- `w4-ww-gemeente` (`MultitenancyClaims.GemeenteCode`)
+- `w4-ww-tenant` (`MultitenancyIdentifiers.Claims.WegwijzerTenantCode`)
+- `w4-ww-env` (`MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName`)
+- `w4-ww-gemeente` (`MultitenancyIdentifiers.Claims.GemeenteCode`)
 
 De tenant identifier wordt opgebouwd als `{tenantCode}-{environmentName}-{gemeenteCode}`.
 
@@ -58,11 +59,11 @@ builder.Services.AddWigo4itMultiTenantAspNetCore(options =>
 
 Benodigde headers:
 
-- `Wigo4it.Wegwijzer.TenantCode` (`MultitenancyHeaders.WegwijzerTenantCode`)
-- `Wigo4it.Wegwijzer.EnvironmentName` (`MultitenancyHeaders.WegwijzerEnvironmentName`)
-- `Wigo4it.Socrates.GemeenteCode` (`MultitenancyHeaders.GemeenteCode`)
+- `X-Wigo4it-Wegwijzer-TenantCode` (`MultitenancyIdentifiers.HttpHeaders.WegwijzerTenantCode`)
+- `X-Wigo4it-Wegwijzer-EnvironmentName` (`MultitenancyIdentifiers.HttpHeaders.WegwijzerEnvironmentName`)
+- `X-Wigo4it-Socrates-GemeenteCode` (`MultitenancyIdentifiers.HttpHeaders.GemeenteCode`)
 
 ## Middleware volgorde
 
-Plaats `app.UseWigo4itMultiTenantAspNetCore()` **na** authenticatie (`UseAuthentication`) zodat claims beschikbaar zijn, en vóór endpoints die tenant-specifieke opties gebruiken.
+Plaats `app.UseMultiTenant()` **na** authenticatie (`UseAuthentication`) zodat claims beschikbaar zijn, en vóór endpoints die tenant-specifieke opties gebruiken.
 

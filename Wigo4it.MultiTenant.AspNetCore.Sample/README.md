@@ -1,14 +1,14 @@
 # Wigo4it.MultiTenant.AspNetCore Sample
 
-Een ASP.NET Core applicatie die demonstreert hoe `Wigo4it.MultiTenant.AspNetCore` tenant-specifieke opties (`SampleTenantOptions`) correct resolved uit JWT tokens met multitenancy claims.
+Een ASP.NET Core applicatie die demonstreert hoe `Wigo4it.MultiTenant.AspNetCore` tenant-specifieke opties (`SampleTenantOptions`) correct resolved uit JWT tokens met multitenancy claims of HTTP-headers.
 
 ## Overzicht
 
 Deze sample toont hoe:
 - JWT tokens met multitenancy claims worden geparseerd (zonder token validation)
-- Tenant-context wordt bepaald op basis van claims in het token
+- Tenant-context wordt bepaald op basis van claims in het token of op basis van HTTP-headers
 - Tenant-specifieke opties worden injecteerd via dependency injection
-- Dezelfde opties via `IOptionsMonitor` kunnen worden opgehaald per tenant
+- Tenant-resolutie kan schakelen tussen claims en headers via `Wigo4it:MultiTenant:TenantIdResolutionStrategy`
 
 ## Setup
 
@@ -47,7 +47,7 @@ Bijvoorbeeld: `9446-dev-0518`
 Health check endpoint dat bevestigt dat de applicatie draait.
 
 ### GET /tenant-info
-Demonstreert dat `SampleTenantOptions` correct worden resolved op basis van de JWT claims.
+Demonstreert dat `SampleTenantOptions` correct worden resolved op basis van de geconfigureerde tenant-resolutie (claims of headers).
 
 **Headers:**
 ```
@@ -57,7 +57,7 @@ Authorization: Bearer <jwt_token>
 **Response voorbeeld:**
 ```json
 {
-  "message": "Tenant information successfully resolved from JWT claims",
+  "message": "Tenant information successfully resolved",
   "tenantIdentifier": "9446-dev-0518",
   "tenantCode": "9446",
   "environmentName": "dev",
@@ -66,22 +66,13 @@ Authorization: Bearer <jwt_token>
 }
 ```
 
-### GET /tenant-monitor/{tenantCode}-{environmentName}-{gemeenteCode}
-Demonstreert hoe per-tenant opties kunnen worden opgehaald via `IOptionsMonitor`.
-
-**Voorbeeld:**
-```
-GET /tenant-monitor/9446-dev-0518
-Authorization: Bearer <jwt_token>
-```
-
 ## Testing
 
-Gebruik het meegeleverde `requests.http` bestand voor het testen van de endpoints met voorgedefinieerde JWT tokens.
+Gebruik het meegeleverde `requests.http` bestand voor het testen van de endpoints met voorgedefinieerde JWT tokens en, in header-modus, met expliciete tenant headers.
 
 ### JWT Tokens
 
-Er zijn twee voorgedefinieerde tokens in `requests.http`:
+Er zijn drie voorgedefinieerde tokens in `requests.http`:
 
 1. **Dev token (9446-dev-0518)**
    ```
@@ -91,6 +82,11 @@ Er zijn twee voorgedefinieerde tokens in `requests.http`:
 2. **Test token (9446-test-0599)**
    ```
    eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ3NC13dy10ZW5hbnQiOiAiOTQ0NiIsICJ3NC13dy1lbnYiOiAidGVzdCIsICJ3NC13dy1nZW1lZW50ZSI6ICIwNTk5In0.dummysignature
+   ```
+
+3. **Token zonder tenant claims**
+   ```
+   eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiZHVtbXktdXNlciJ9.dummysignature
    ```
 
 Deze tokens hebben geen geldige handtekening, maar dat is prima voor deze sample omdat token validation is uitgeschakeld.
@@ -123,17 +119,17 @@ Elke tenant-specifieke instelling onder het juiste pad wordt automatisch gekoppe
 
 ## Hoe het werkt
 
-1. **JWT Token Parser**: De `JwtBearer` authentication handler leest het JWT token en extraheert de claims
-2. **Tenant Identifier Resolver**: `AspNetCoreTenantIdResolver` bepaalt de tenant identifier vanuit claims: `{tenantCode}-{environmentName}-{gemeenteCode}`
-3. **Tenant Context**: `TenantClaimsMiddleware` slaat de tenant identifier op in `HttpContext.Items`
-4. **Tenant Store**: `DictionaryConfigurationStore` leest de tenant configuratie uit appsettings.json
-5. **Dependency Injection**: `SampleTenantOptions` worden per-tenant ingesteld via `ConfigurePerTenant`
-6. **Options Resolution**: Bij aanvraag van `IOptions<SampleTenantOptions>` geeft DI de juiste tenant-specifieke opties
+1. **JWT Token Parser**: De `JwtBearer` authentication handler leest het JWT token en extraheert claims.
+2. **Tenant Identifier Resolver**: afhankelijk van `TenantIdResolutionStrategy` gebruikt de library claims (`AspNetCoreTenantIdFromClaimsResolver`) of HTTP-headers (`AspNetCoreTenantIdFromHeadersResolver`) om `{tenantCode}-{environmentName}-{gemeenteCode}` te bepalen.
+3. **Tenant Context**: `app.UseMultiTenant()` zet de Finbuckle tenant-context op basis van de resolved identifier.
+4. **Tenant Store**: `DictionaryConfigurationStore` leest de tenant configuratie uit `appsettings.json`.
+5. **Dependency Injection**: `SampleTenantOptions` worden per tenant ingesteld via `ConfigurePerTenant`.
+6. **Options Resolution**: bij aanvraag van `IOptions<SampleTenantOptions>` geeft DI de juiste tenant-specifieke opties.
 
 ## Specifieke implementatiedetails
 
 ### JWT Token Validation
-De sample gebruikt een custom `UnsafeJwtValidator` die JWT tokens accepteert zonder de handtekening te valideren. Dit is **ALLEEN** geschikt voor sample/test doeleinden.
+De sample gebruikt een custom `UnsafeJwtTokenHandler` die JWT tokens accepteert zonder de handtekening te valideren. Dit is **ALLEEN** geschikt voor sample/test doeleinden.
 
 In productie moet een proper JWT token validation worden ingesteld met:
 - Geldige ondertekende tokens
@@ -148,7 +144,7 @@ Zie `SampleServices.cs` voor de configuratie details.
 
 Voor het debuggen kunt u volgende breakpoints instellen:
 - `SampleServices.ConfigureSampleServices()` - Ziet configuratie
-- `AspNetCoreTenantIdResolver.DetermineTenantIdentifier()` - Ziet tenant resolution
+- `AspNetCoreTenantIdFromClaimsResolver.DetermineTenantIdentifier()` of `AspNetCoreTenantIdFromHeadersResolver.DetermineTenantIdentifier()` - Ziet tenant resolution
 - De endpoint handlers - Ziet injecteerde opties
 
 ## Productie Use
