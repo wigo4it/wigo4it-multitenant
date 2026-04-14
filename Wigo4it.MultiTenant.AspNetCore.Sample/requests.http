@@ -14,17 +14,43 @@
 # - w4-ww-gemeente: 0599
 @token_test_0599=eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJ3NC13dy10ZW5hbnQiOiAiOTQ0NiIsICJ3NC13dy1lbnYiOiAidGVzdCIsICJ3NC13dy1nZW1lZW50ZSI6ICIwNTk5In0.dummysignature
 
+# JWT token zonder tenant claims - gebruikt voor header-gebaseerde tenant resolutie
+# Claims:
+# - sub: dummy-user
+@token_no_tenant_claims=eyJhbGciOiAiSFMyNTYiLCAidHlwIjogIkpXVCJ9.eyJzdWIiOiAiZHVtbXktdXNlciJ9.dummysignature
+
 @host=http://localhost:5000
 
 ### Health check
 GET {{host}}/
 
 ### Get tenant info for dev-0518 from claims
+# Vereist: appsettings.json -> TenantIdResolutionStrategy: "Claims"
 GET {{host}}/tenant-info
 Authorization: Bearer {{token_dev_0518}}
 
 ### Get tenant info for test-0599 from claims
+# Vereist: appsettings.json -> TenantIdResolutionStrategy: "Claims"
 GET {{host}}/tenant-info
 Authorization: Bearer {{token_test_0599}}
+
+### Get tenant info for dev-0518 from headers
+# Vereist: appsettings.json -> TenantIdResolutionStrategy: "Headers"
+# Tenant informatie wordt meegegeven via headers, het token bevat geen tenant claims
+GET {{host}}/tenant-info
+Authorization: Bearer {{token_no_tenant_claims}}
+X-Wigo4it-Wegwijzer-TenantCode: 9446
+X-Wigo4it-Wegwijzer-EnvironmentName: dev
+X-Wigo4it-Socrates-GemeenteCode: 0518
+
+### Get tenant info for test-0599 from headers
+# Vereist: appsettings.json -> TenantIdResolutionStrategy: "Headers"
+# Tenant informatie wordt meegegeven via headers, het token bevat geen tenant claims
+GET {{host}}/tenant-info
+Authorization: Bearer {{token_no_tenant_claims}}
+X-Wigo4it-Wegwijzer-TenantCode: 9446
+X-Wigo4it-Wegwijzer-EnvironmentName: test
+X-Wigo4it-Socrates-GemeenteCode: 0599
+
 
 
