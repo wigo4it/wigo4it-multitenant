@@ -1,8 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Finbuckle.MultiTenant.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Wigo4it.MultiTenant.AspNetCore.Sample;
 
@@ -18,7 +18,8 @@ public static class SampleServices
     {
         // Configureer JWT Bearer authenticatie zonder tokenvalidatie voor voorbeelddoeleinden.
         // In productie moet de juiste tokenvalidatie worden geconfigureerd.
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 // Schakel alle validatie uit voor voorbeelddoeleinden
@@ -26,7 +27,7 @@ public static class SampleServices
                 options.TokenValidationParameters.ValidateAudience = false;
                 options.TokenValidationParameters.ValidateLifetime = false;
                 options.TokenValidationParameters.ValidateIssuerSigningKey = false;
-                
+
                 options.TokenHandlers.Clear();
                 options.TokenHandlers.Add(new UnsafeJwtTokenHandler());
             });
@@ -35,7 +36,8 @@ public static class SampleServices
 
         // Configure multitenancy en bind ASP.NET Core opties rechtstreeks vanuit configuratie.
         services.AddWigo4itMultiTenantAspNetCore<SampleTenantInfo>(options =>
-            configuration.GetSection("Wigo4it:MultiTenant").Bind(options));
+            configuration.GetSection("Wigo4it:MultiTenant").Bind(options)
+        );
 
         // Configureer SampleTenantOptions om per tenant te resolven vanuit configuratie
         services.ConfigurePerTenant<SampleTenantOptions, SampleTenantInfo>(
@@ -57,25 +59,28 @@ internal class UnsafeJwtTokenHandler : TokenHandler
 {
     private static readonly JwtSecurityTokenHandler JwtHandler = new();
 
-    public override Task<TokenValidationResult> ValidateTokenAsync(string token,
-        TokenValidationParameters validationParameters)
+    public override Task<TokenValidationResult> ValidateTokenAsync(string token, TokenValidationParameters validationParameters)
     {
         if (string.IsNullOrWhiteSpace(token))
         {
-            return Task.FromResult(new TokenValidationResult
-            {
-                IsValid = false,
-                Exception = new SecurityTokenMalformedException("Bearer token cannot be empty.")
-            });
+            return Task.FromResult(
+                new TokenValidationResult
+                {
+                    IsValid = false,
+                    Exception = new SecurityTokenMalformedException("Bearer token cannot be empty."),
+                }
+            );
         }
 
         if (!JwtHandler.CanReadToken(token))
         {
-            return Task.FromResult(new TokenValidationResult
-            {
-                IsValid = false,
-                Exception = new SecurityTokenMalformedException("Bearer token must be valid.")
-            });
+            return Task.FromResult(
+                new TokenValidationResult
+                {
+                    IsValid = false,
+                    Exception = new SecurityTokenMalformedException("Bearer token must be valid."),
+                }
+            );
         }
 
         try
@@ -86,18 +91,13 @@ internal class UnsafeJwtTokenHandler : TokenHandler
             {
                 ClaimsIdentity = new ClaimsIdentity(jwtToken.Claims, JwtBearerDefaults.AuthenticationScheme),
                 SecurityToken = jwtToken,
-                IsValid = true
+                IsValid = true,
             };
             return Task.FromResult(result);
         }
         catch (Exception ex)
         {
-            return Task.FromResult(new TokenValidationResult
-            {
-                IsValid = false,
-                Exception = ex
-            });
+            return Task.FromResult(new TokenValidationResult { IsValid = false, Exception = ex });
         }
     }
 }
-

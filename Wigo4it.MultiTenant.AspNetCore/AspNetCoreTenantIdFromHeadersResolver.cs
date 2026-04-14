@@ -15,7 +15,7 @@ public static class AspNetCoreTenantIdFromHeadersResolver
     /// Geeft <see langword="null"/> terug als vereiste headers ontbreken.
     /// </summary>
     public static Task<string?> DetermineTenantIdentifier(object context)
-    {        
+    {
         var httpContext = (HttpContext)context;
         return Task.FromResult(httpContext.Request.Headers.CaptureTenantIdentifier());
     }
@@ -45,8 +45,6 @@ public static class AspNetCoreTenantIdFromHeadersResolver
 
     private static string? GetHeaderValue(IHeaderDictionary headers, string key)
     {
-        return headers.TryGetValue(key, out StringValues value) && !StringValues.IsNullOrEmpty(value)
-            ? value.ToString()
-            : null;
+        return headers.TryGetValue(key, out StringValues value) && !StringValues.IsNullOrEmpty(value) ? value.ToString() : null;
     }
 }

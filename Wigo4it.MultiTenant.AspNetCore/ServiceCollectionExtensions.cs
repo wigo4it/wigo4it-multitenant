@@ -23,12 +23,9 @@ public static class ServiceCollectionExtensions
             return services.AddWigo4itMultiTenant<TTenantInfo>(resolver);
         }
 
-        public IServiceCollection AddWigo4itMultiTenantAspNetCore(
-            Action<Wigo4ItMultiTenantAspNetCoreOptions>? configure = null
-        )
+        public IServiceCollection AddWigo4itMultiTenantAspNetCore(Action<Wigo4ItMultiTenantAspNetCoreOptions>? configure = null)
         {
             return services.AddWigo4itMultiTenantAspNetCore<Wigo4itTenantInfo>(configure);
         }
     }
 }
-

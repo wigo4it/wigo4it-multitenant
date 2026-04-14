@@ -39,7 +39,8 @@ public class TenantInfoEndpointsFromClaimsTests
         string expectedTenantIdentifier,
         string expectedEnvironmentName,
         string expectedGemeenteCode,
-        string expectedCustomSetting)
+        string expectedCustomSetting
+    )
     {
         _factory = new TestWebApplicationFactory(TenantIdResolutionStrategy.Claims);
         var client = _factory.CreateClient();
@@ -69,4 +70,3 @@ public class TenantInfoEndpointsFromClaimsTests
         return payload!;
     }
 }
-

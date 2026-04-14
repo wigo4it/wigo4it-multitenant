@@ -26,19 +26,15 @@ public sealed class TestWebApplicationFactory : WebApplicationFactory<Program>
         var strategyValue = _strategy switch
         {
             TenantIdResolutionStrategy.Headers => "Headers",
-            _ => "Claims"
+            _ => "Claims",
         };
 
         var config = new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                { "Wigo4it:MultiTenant:TenantIdResolutionStrategy", strategyValue }
-            })
+            .AddInMemoryCollection(
+                new Dictionary<string, string?> { { "Wigo4it:MultiTenant:TenantIdResolutionStrategy", strategyValue } }
+            )
             .Build();
 
-
         builder.UseConfiguration(config);
-        
     }
 }
-

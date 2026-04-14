@@ -10,5 +10,3 @@ public sealed class Wigo4ItMultiTenantAspNetCoreOptions
     /// </summary>
     public TenantIdResolutionStrategy TenantIdResolutionStrategy { get; set; } = TenantIdResolutionStrategy.Claims;
 }
-
-

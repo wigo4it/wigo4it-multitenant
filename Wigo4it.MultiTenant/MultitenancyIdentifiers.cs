@@ -10,20 +10,20 @@ public class MultitenancyIdentifiers
     {
         WegwijzerTenantCode = "Wigo4it.Wegwijzer.TenantCode",
         WegwijzerEnvironmentName = "Wigo4it.Wegwijzer.EnvironmentName",
-        GemeenteCode = "Wigo4it.Socrates.GemeenteCode"
+        GemeenteCode = "Wigo4it.Socrates.GemeenteCode",
     };
 
     public static readonly MultitenancyIdentifiers HttpHeaders = new()
     {
         WegwijzerTenantCode = "X-Wigo4it-Wegwijzer-TenantCode",
         WegwijzerEnvironmentName = "X-Wigo4it-Wegwijzer-EnvironmentName",
-        GemeenteCode = "X-Wigo4it-Socrates-GemeenteCode"
+        GemeenteCode = "X-Wigo4it-Socrates-GemeenteCode",
     };
-    
+
     public static readonly MultitenancyIdentifiers Claims = new()
     {
         WegwijzerTenantCode = "w4-ww-tenant",
         WegwijzerEnvironmentName = "w4-ww-env",
-        GemeenteCode = "w4-ww-gemeente"
+        GemeenteCode = "w4-ww-gemeente",
     };
 }

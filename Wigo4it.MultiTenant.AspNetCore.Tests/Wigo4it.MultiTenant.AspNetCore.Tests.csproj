@@ -33,4 +33,3 @@
     <ProjectReference Include="..\Wigo4it.MultiTenant.AspNetCore\Wigo4it.MultiTenant.AspNetCore.csproj" />
   </ItemGroup>
 </Project>
-
