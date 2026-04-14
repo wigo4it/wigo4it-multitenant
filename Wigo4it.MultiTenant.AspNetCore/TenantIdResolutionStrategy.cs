@@ -15,4 +15,3 @@ public enum TenantIdResolutionStrategy
     /// </summary>
     Headers,
 }
-

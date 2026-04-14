@@ -11,4 +11,3 @@ public class SampleTenantOptions
     /// </summary>
     public string? CustomSetting { get; set; }
 }
-

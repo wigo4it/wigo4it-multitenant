@@ -57,4 +57,3 @@ public class AspNetCoreTenantIdFromHeadersResolverTests
         return context;
     }
 }
-

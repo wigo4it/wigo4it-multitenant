@@ -7,7 +7,7 @@ public class TenantInfoEndpointsFromHeadersTests
 {
     private const string DummyToken =
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3NC13dy10ZW5hbnQiOiI5NDQ2IiwidzQtd3ctZW52IjoicHJkIiwidzQtd3ctZ2VtZWVudGUiOiIwMTIzIn0.VtgcRY4Le4JCeNDkx1TgRzCdph7l85FuF9pLAoZoXeQ";
-    
+
     private TestWebApplicationFactory? _factory;
 
     [TearDown]
@@ -41,12 +41,13 @@ public class TenantInfoEndpointsFromHeadersTests
         string expectedTenantIdentifier,
         string expectedEnvironmentName,
         string expectedGemeenteCode,
-        string expectedCustomSetting)
+        string expectedCustomSetting
+    )
     {
         _factory = new TestWebApplicationFactory(TenantIdResolutionStrategy.Headers);
         var client = _factory.CreateClient();
         client.DefaultRequestHeaders.Add("Authorization", $"Bearer {DummyToken}");
-        
+
         // Set the tenant identifier headers
         client.DefaultRequestHeaders.Add(MultitenancyIdentifiers.HttpHeaders.WegwijzerTenantCode, tenantCode);
         client.DefaultRequestHeaders.Add(MultitenancyIdentifiers.HttpHeaders.WegwijzerEnvironmentName, environmentName);
@@ -76,4 +77,3 @@ public class TenantInfoEndpointsFromHeadersTests
         return payload!;
     }
 }
-

@@ -19,7 +19,7 @@ public class AspNetCoreTenantIdFromClaimsResolverTests
 
         Assert.That(identifier, Is.EqualTo("9446-0518pr1-0001"));
     }
-    
+
     [Test]
     public async Task DetermineTenantIdentifier_WithMissingClaim_ReturnsNull()
     {
@@ -36,10 +36,7 @@ public class AspNetCoreTenantIdFromClaimsResolverTests
     [Test]
     public async Task DetermineTenantIdentifier_WithUnauthenticatedUser_ReturnsNull()
     {
-        var context = new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(new ClaimsIdentity()),
-        };
+        var context = new DefaultHttpContext { User = new ClaimsPrincipal(new ClaimsIdentity()) };
 
         var identifier = await AspNetCoreTenantIdFromClaimsResolver.DetermineTenantIdentifier(context);
 
@@ -54,10 +51,6 @@ public class AspNetCoreTenantIdFromClaimsResolverTests
             identity.AddClaim(new Claim(claim.Type, claim.Value));
         }
 
-        return new DefaultHttpContext
-        {
-            User = new ClaimsPrincipal(identity),
-        };
+        return new DefaultHttpContext { User = new ClaimsPrincipal(identity) };
     }
 }
-

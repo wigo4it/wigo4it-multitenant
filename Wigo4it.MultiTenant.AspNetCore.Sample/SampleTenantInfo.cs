@@ -10,4 +10,3 @@ public record SampleTenantInfo : Wigo4itTenantInfo
     /// </summary>
     public string? CustomSetting { get; set; }
 }
-
