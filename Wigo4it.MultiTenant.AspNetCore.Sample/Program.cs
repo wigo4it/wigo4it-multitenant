@@ -23,7 +23,6 @@ app.MapGet(
     "/tenant-info",
     [Authorize]
     (
-        HttpContext context,
         IOptions<SampleTenantOptions> sampleOptions,
         IOptions<Wigo4itTenantOptions> tenantOptions,
         Finbuckle.MultiTenant.Abstractions.IMultiTenantContextAccessor mtContextAccessor

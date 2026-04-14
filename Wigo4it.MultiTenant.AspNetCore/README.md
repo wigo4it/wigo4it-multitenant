@@ -42,10 +42,18 @@ De tenant identifier wordt opgebouwd als `{tenantCode}-{environmentName}-{gemeen
 
 ## Alternatief: headers gebruiken
 
-Geef `TenantIdResolutionStrategy.Headers` mee:
+Geef een options configuratie mee:
 
 ```csharp
-builder.Services.AddWigo4itMultiTenantAspNetCore(TenantIdResolutionStrategy.Headers);
+builder.Services.AddWigo4itMultiTenantAspNetCore(options =>
+	options.TenantIdResolutionStrategy = TenantIdResolutionStrategy.Headers);
+```
+
+Of bind vanuit configuratie (bijvoorbeeld `Wigo4it:MultiTenant`):
+
+```csharp
+builder.Services.AddWigo4itMultiTenantAspNetCore(options =>
+	builder.Configuration.GetSection("Wigo4it:MultiTenant").Bind(options));
 ```
 
 Benodigde headers:
