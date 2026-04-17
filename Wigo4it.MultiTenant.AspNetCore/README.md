@@ -1,6 +1,7 @@
 # Wigo4it.MultiTenant.AspNetCore
 
-ASP.NET Core integratie voor `Wigo4it.MultiTenant`. Deze library leest tenant-identificerende claims of HTTP-headers en zet de tenant context via middleware + Finbuckle strategy.
+ASP.NET Core integratie voor `Wigo4it.MultiTenant`. Deze library leest tenant-identificerende claims of HTTP-headers en zet de tenant context. 
+Deze context wordt in `Wigo4it.MultiTenant` om tenant-specifieke configuratie te bepalen
 
 ## Installatie
 
@@ -18,10 +19,17 @@ using Finbuckle.MultiTenant.AspNetCore.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// AddAuthentication en AddAuthorization is alleen nodig bij gebruik van TenantIdResolutionStrategy.Claims
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
 builder.Services.AddAuthorization();
 
-builder.Services.AddWigo4itMultiTenantAspNetCore();
+// Resolve tenant op basis van claims in het token
+builder.Services.AddWigo4itMultiTenantAspNetCore(o =>
+            o.TenantIdResolutionStrategy = TenantIdResolutionStrategy.Claims);
+// óf resolve tenant op basis van headers:
+builder.Services.AddWigo4itMultiTenantAspNetCore(o =>
+            o.TenantIdResolutionStrategy = TenantIdResolutionStrategy.Headers);
+
 
 var app = builder.Build();
 
@@ -34,35 +42,60 @@ app.MapGet("/", () => "ok");
 app.Run();
 ```
 
-## Benodigde claims in token
+# Tenant resolution strategie
+Tenant resolution kan op twee manieren worden gedaan: via claims in een JWT token of via HTTP headers. Deze keuze wordt op host niveau gemaakt via de `TenantIdResolutionStrategy` optie.
 
+## Claims based tenant resolution
+Configureer de library om tenant identifiers uit claims te lezen:
+```csharp
+builder.Services.AddWigo4itMultiTenantAspNetCore(options =>
+    options.TenantIdResolutionStrategy = TenantIdResolutionStrategy.Claims);
+```
+
+De Tenant identifier wordt vervolgens opgebouwd uit de volgende claims:
 - `w4-ww-tenant` (`MultitenancyIdentifiers.Claims.WegwijzerTenantCode`)
 - `w4-ww-env` (`MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName`)
 - `w4-ww-gemeente` (`MultitenancyIdentifiers.Claims.GemeenteCode`)
 
 De tenant identifier wordt opgebouwd als `{tenantCode}-{environmentName}-{gemeenteCode}`.
 
-## Alternatief: headers gebruiken
-
-Geef een options configuratie mee:
-
+## Header based tenant resolution
+Configureer de library om tenant identifiers uit HTTP headers te lezen:
 ```csharp
 builder.Services.AddWigo4itMultiTenantAspNetCore(options =>
-	options.TenantIdResolutionStrategy = TenantIdResolutionStrategy.Headers);
+    options.TenantIdResolutionStrategy = TenantIdResolutionStrategy.Headers);
 ```
 
-Of bind vanuit configuratie (bijvoorbeeld `Wigo4it:MultiTenant`):
+De Tenant identifier wordt vervolgens opgebouwd uit de volgende headers:
+- `X-Wigo4it-Wegwijzer-TenantCode` (`MultitenancyIdentifiers.HttpHeaders.WegwijzerTenantCode`)
+- `X-Wigo4it-Wegwijzer-EnvironmentName` (`MultitenancyIdentifiers.HttpHeaders.WegwijzerEnvironmentName`)
+- `X-Wigo4it-Socrates-GemeenteCode` (`MultitenancyIdentifiers.HttpHeaders.GemeenteCode`)
+
+De tenant identifier wordt opgebouwd als `{tenantCode}-{environmentName}-{gemeenteCode}`.
+
+## Tenant resolution op basis van configuratie
+In plaats van een hardcoded strategie te gebruiken, kan de tenant resolution ook worden geconfigureerd via ASP.Net Core configuratie (bijvoorbeeld `Wigo4it:MultiTenant`):
 
 ```csharp
 builder.Services.AddWigo4itMultiTenantAspNetCore(options =>
 	builder.Configuration.GetSection("Wigo4it:MultiTenant").Bind(options));
 ```
 
-Benodigde headers:
+Let hierbij op dat de `Wigo4it:MultiTenant` sectie beschikbaar is in de configuratie, bijvoorbeeld via `appsettings.json`:
 
-- `X-Wigo4it-Wegwijzer-TenantCode` (`MultitenancyIdentifiers.HttpHeaders.WegwijzerTenantCode`)
-- `X-Wigo4it-Wegwijzer-EnvironmentName` (`MultitenancyIdentifiers.HttpHeaders.WegwijzerEnvironmentName`)
-- `X-Wigo4it-Socrates-GemeenteCode` (`MultitenancyIdentifiers.HttpHeaders.GemeenteCode`)
+```json
+{
+  "Wigo4it": {
+    "MultiTenant": {
+      "TenantIdResolutionStrategy": "Claims"
+    }
+  }
+}
+```
+of environment variables:
+```bash
+export Wigo4it__MultiTenant__TenantIdResolutionStrategy=Claims
+```
 
 ## Middleware volgorde
 

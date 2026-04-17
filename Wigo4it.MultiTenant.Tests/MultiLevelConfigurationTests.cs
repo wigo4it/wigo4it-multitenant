@@ -124,10 +124,10 @@ public class MultiLevelConfigurationTests
         await using var serviceProvider = services.BuildServiceProvider();
         using var scope = serviceProvider.CreateScope();
 
-        // Act: los de tenant op via Finbuckle's resolver en zet de context
+        // Act: resolve de tenant op via Finbuckle's resolver en zet de context
         var tenantResolver = scope.ServiceProvider.GetRequiredService<ITenantResolver>();
         var tenantContext = await tenantResolver.ResolveAsync(new object());
-        Assert.That(tenantContext.IsResolved, Is.True, "Tenant moet worden opgelost door de statische strategie");
+        Assert.That(tenantContext.IsResolved, Is.True, "Tenant moet worden resolved door de statische strategie");
 
         var contextSetter = scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>();
         contextSetter.MultiTenantContext = tenantContext;

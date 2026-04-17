@@ -1,6 +1,7 @@
 # Wigo4it.MultiTenant.NServiceBus
 
-NServiceBus-integratie voor Wigo4it.MultiTenant. De library resolved tenants uit berichtheaders, zet de tenantcontext voor handlers en stuurt headers standaard door naar uitgaande berichten.
+NServiceBus integratie voor `Wigo4it.MultiTenant`. Deze library leest tenant-identificerende message headers en zet de tenant context.
+Deze context wordt in `Wigo4it.MultiTenant` om tenant-specifieke configuratie te bepalen. Tenant-identificerende headers worden automatisch op uitgaande messages gezet.
 
 ## Installatie
 

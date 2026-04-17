@@ -14,6 +14,8 @@ dotnet add package Wigo4it.MultiTenant
 using Wigo4it.MultiTenant;
 
 // In Program.cs of Startup.cs
+uilder.Services.AddWigo4itMultiTenant(tenantIdentifierResolver);
+// of, met je eigen TenantInfo type:
 builder.Services.AddWigo4itMultiTenant<MyTenantInfo>(tenantIdentifierResolver);
 ```
 
@@ -56,8 +58,19 @@ Elke configuration provider ondersteunt door .Net kan gebruikt worden om deze st
 1. `Defaults` bevat waarden die gelden voor alle gemeenten binnen een omgeving.
 2. `Gemeenten` kan specifieke waarden overschrijven. Waarden die hier ontbreken, erven uit `Defaults`.
 
-## Eigen TenantInfo type
+## TenantInfo
+Standaard wordt `Wigo4itTenantInfo` gebruikt als tenant-informatie type. Deze bevat een `Identifier`, een tenant specifieke `IConfiguration` en een object `Options` met daarin de uniek identificerende properties van de tenant:
+```csharp
+public record Wigo4itTenantInfo : ITenantInfo
+{
+    string ITenantInfo.Id => Identifier;
+    public required string Identifier { get; init; }
+    public required IConfiguration Configuration { get; init; }
+    public required Wigo4itTenantOptions Options { get; init; }
+}
+```
 
+Wanneer je behoefte hebt aan meer tenant-specifieke properties kun je je eigen `TenantInfo` type definieren door middel van een record dat erft van `Wigo4itTenantInfo`:
 ```csharp
 public record MyTenantInfo : Wigo4itTenantInfo
 {
@@ -99,6 +112,11 @@ builder.Services.ConfigurePerTenant<MyTenantOptions, MyTenantInfo>((options, ten
     options.FeatureEnabled = tenantInfo.FeatureEnabled;
     options.ApiEndpoint = tenantInfo.ComplexProperty?.ApiUrl;
 });
+```
+
+of gebruik `Options` binding:
+```csharp
+builder.Services.AddOptions<MyTenantOptions>().BindConfigurationPerTenant("MyTenantOptions");
 ```
 
 3. Gebruik `IOptions<MyTenantOptions>` in services:
