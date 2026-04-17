@@ -33,9 +33,9 @@ public static class AspNetCoreTenantIdFromClaimsResolver
             return null;
         }
 
-        var tenantCode = principal.FindFirst(MultitenancyIdentifiers.Claims.WegwijzerTenantCode)?.Value;
-        var environmentName = principal.FindFirst(MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName)?.Value;
-        var gemeenteCode = principal.FindFirst(MultitenancyIdentifiers.Claims.GemeenteCode)?.Value;
+        var tenantCode = principal.FindFirst(MultitenancyIdentifiers.Claims.WegwijzerTenantCode)?.Value?.Trim(' ', '"');
+        var environmentName = principal.FindFirst(MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName)?.Value?.Trim(' ', '"');
+        var gemeenteCode = principal.FindFirst(MultitenancyIdentifiers.Claims.GemeenteCode)?.Value?.Trim(' ', '"');
 
         if (
             string.IsNullOrWhiteSpace(tenantCode)

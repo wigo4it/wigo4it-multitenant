@@ -14,8 +14,10 @@ public static class NServiceBusTenantIdResolver
 
     public static string CaptureTenantIdentifier(this IncomingMessage message)
     {
-        return $"{message.Headers[MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode]}"
-            + $"-{message.Headers[MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName]}"
-            + $"-{message.Headers[MultitenancyIdentifiers.MessageHeaders.GemeenteCode]}";
+        var tenantCode = message.Headers[MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode]?.Trim(' ', '"');
+        var environmentName = message.Headers[MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName]?.Trim(' ', '"');
+        var gemeenteCode = message.Headers[MultitenancyIdentifiers.MessageHeaders.GemeenteCode]?.Trim(' ', '"');
+
+        return $"{tenantCode}-{environmentName}-{gemeenteCode}";
     }
 }

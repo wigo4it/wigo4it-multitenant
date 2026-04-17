@@ -46,6 +46,20 @@ public class AspNetCoreTenantIdFromHeadersResolverTests
         Assert.That(identifier, Is.Null);
     }
 
+    [Test]
+    public async Task DetermineTenantIdentifier_StripsQuotesFromHeaderValue()
+    {
+        var context = CreateContextWithHeaders(
+            (MultitenancyIdentifiers.HttpHeaders.WegwijzerTenantCode, "\"9446\""),
+            (MultitenancyIdentifiers.HttpHeaders.WegwijzerEnvironmentName, "\"dev\""),
+            (MultitenancyIdentifiers.HttpHeaders.GemeenteCode, "\"0001\"")
+        );
+
+        var identifier = await AspNetCoreTenantIdFromHeadersResolver.DetermineTenantIdentifier(context);
+
+        Assert.That(identifier, Is.EqualTo("9446-dev-0001"));
+    }
+
     private static DefaultHttpContext CreateContextWithHeaders(params (string Key, string Value)[] headers)
     {
         var context = new DefaultHttpContext();
