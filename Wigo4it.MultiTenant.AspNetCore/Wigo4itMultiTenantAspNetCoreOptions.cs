@@ -1,7 +1,7 @@
 namespace Wigo4it.MultiTenant.AspNetCore;
 
 /// <summary>
-/// Configureeropties voor ASP.NET Core tenant-resolutie.
+/// Configuratieopties voor ASP.NET Core tenant-resolutie.
 /// </summary>
 public sealed class Wigo4itMultiTenantAspNetCoreOptions
 {
