@@ -43,6 +43,20 @@ public class AspNetCoreTenantIdFromClaimsResolverTests
         Assert.That(identifier, Is.Null);
     }
 
+    [Test]
+    public async Task DetermineTenantIdentifier_StripsQuotesFromClaimValue()
+    {
+        var context = CreateContextWithClaims(
+            (MultitenancyIdentifiers.Claims.WegwijzerTenantCode, "\"9446\""),
+            (MultitenancyIdentifiers.Claims.WegwijzerEnvironmentName, "\"dev\""),
+            (MultitenancyIdentifiers.Claims.GemeenteCode, "\"0001\"")
+        );
+
+        var identifier = await AspNetCoreTenantIdFromClaimsResolver.DetermineTenantIdentifier(context);
+
+        Assert.That(identifier, Is.EqualTo("9446-dev-0001"));
+    }
+
     private static DefaultHttpContext CreateContextWithClaims(params (string Type, string Value)[] claims)
     {
         var identity = new ClaimsIdentity("test-auth");

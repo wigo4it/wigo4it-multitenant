@@ -42,6 +42,11 @@ public static class AspNetCoreTenantIdFromHeadersResolver
 
     private static string? GetHeaderValue(IHeaderDictionary headers, string key)
     {
-        return headers.TryGetValue(key, out StringValues value) && !StringValues.IsNullOrEmpty(value) ? value.ToString() : null;
+        if (headers.TryGetValue(key, out var value) && !StringValues.IsNullOrEmpty(value))
+        {
+            return value.ToString().Trim(' ', '"');
+        }
+
+        return null;
     }
 }

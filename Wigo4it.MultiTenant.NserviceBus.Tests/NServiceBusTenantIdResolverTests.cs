@@ -27,6 +27,26 @@ public class NServiceBusTenantIdResolverTests
     }
 
     [Test]
+    public async Task DetermineTenantIdentifier_StripsQuotesFromHeaderValue()
+    {
+        // Arrange
+        var headers = new Dictionary<string, string>
+        {
+            [MultitenancyIdentifiers.MessageHeaders.WegwijzerTenantCode] = "\"9446\"",
+            [MultitenancyIdentifiers.MessageHeaders.WegwijzerEnvironmentName] = "\"dev\"",
+            [MultitenancyIdentifiers.MessageHeaders.GemeenteCode] = "\"0001\"",
+        };
+        var message = new IncomingMessage("messageId", headers, Array.Empty<byte>());
+        var context = new TestIncomingPhysicalMessageContext(message);
+
+        // Act
+        var result = await NServiceBusTenantIdResolver.DetermineTenantIdentifier(context);
+
+        // Assert
+        Assert.That(result, Is.EqualTo("9446-dev-0001"));
+    }
+
+    [Test]
     [TestCaseSource(nameof(ValidTenantIdentifierCases))]
     public void CaptureTenantIdentifier_WithValidHeaders_ReturnsCorrectFormat(
         string tenantCode,
