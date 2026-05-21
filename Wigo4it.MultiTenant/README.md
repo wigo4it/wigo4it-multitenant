@@ -204,6 +204,27 @@ Gebruik `IOptions<T>` als primaire toegang tot tenantgegevens om afhankelijkhede
 - Zet gedeelde waarden in `Defaults` en overschrijf alleen waar nodig per gemeente.
 - Valideer tenant-resolutie vroeg en gooi een duidelijke fout als de tenant ontbreekt.
 
+## MultiTenantHttpClient
+
+Gebruik `AddMultiTenantHttpClient` om automatisch tenant headers mee te sturen bij uitgaande HTTP-calls.
+
+```csharp
+using Wigo4it.MultiTenant.MultiTenantHttpClient;
+
+builder.Services.AddMultiTenantHttpClient("wegwijzer-api", client =>
+{
+    client.BaseAddress = new Uri("https://wegwijzer.example");
+});
+```
+
+De `MultiTenantHeadersDelegatingHandler` die hiermee toegevoegd wordt leest `Wigo4itTenantOptions` en voegt de volgende headers toe, gebaseerd op de huidige tenant:
+
+- `X-Wigo4it-Wegwijzer-TenantCode`
+- `X-Wigo4it-Wegwijzer-EnvironmentName`
+- `X-Wigo4it-Socrates-GemeenteCode`
+
+Werkt zowel voor named clients als typed clients (`AddMultiTenantHttpClient<TClient>(...)`).
+
 ## Troubleshooting
 
 - **Tenant kan niet worden geresolved**: controleer headers/input van je resolver en of de tenant in configuratie bestaat.
