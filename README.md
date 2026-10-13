@@ -16,7 +16,7 @@ Een Tenant in Wigo4it context is gedefinieerd als een individuele (rand)gemeente
 - Om een Tenant uniek te identificeren zijn drie gegevens nodig:
   - `TenantCode`: De viercijferige TenantCode waaronder de omgeving in de Wegwijzer aangemaakt is. **Let op**: de definitie van Tenant in de Wegwijzer is een andere dan we hier hanteren. Voorbeeld: `0518` of `9446`.
   - `EnvironmentName`: De naam van de omgeving zoals die in de Wegwijzer aangemaakt is. Voorbeeld: `0344so1` of `demo-env`.
-  - `GemeenteCode`: De viercijferige gemeentecode van de individuele (rand)gemeente waarvoor het request bedoeld is. Voorbeeld: `0363` of `0321`.
+  - `GemeenteCode`: De viercijferige (CBS) gemeentecode van de individuele (rand)gemeente waarvoor het request bedoeld is. Voorbeeld: `0363` of `0321`.
 
 - **Tenant identifier**: Combineert bovenstaande drie gegevens tot een unieke identifier, volgens het formaat `{TenantCode}-{EnvironmentName}-{GemeenteCode}`, bijvoorbeeld `9446-0344so1-0321`.
 - **Headers**
