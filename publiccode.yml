@@ -1,0 +1,59 @@
+publiccodeYmlVersion: "0.7"
+
+name: Wigo4it Multitenant
+url: "https://github.com/wigo4it/wigo4it-multitenant"
+softwareType: library
+platforms:
+- windows
+- linux
+
+categories:
+- collaboration
+- application-development
+
+
+developmentStatus: stable
+
+description:
+  nl:
+    shortDescription:
+      Multi-tenant ondersteuning voor Wigo4it applicaties (in dotnet), gebouwd
+      op Finbuckle.MultiTenant.
+    longDescription: >
+      Deze repository bevat de basisbibliotheek en integraties voor diverse
+      frameworks zoals AspNetCore en NServiceBus.
+
+      Een Tenant in Wigo4it context is gedefinieerd als een individuele (rand)gemeente binnen een omgeving zoals die in de Wegwijzer aangemaakt wordt.
+
+      Om een Tenant uniek te identificeren zijn drie gegevens nodig:
+      - `TenantCode`: De viercijferige TenantCode waaronder de omgeving in de Wegwijzer aangemaakt is. Voorbeeld: `0518` of `9446`.
+      - `EnvironmentName`: De naam van de omgeving zoals die in de Wegwijzer aangemaakt is. Voorbeeld: `0344so1` of `demo-env`.
+      - `GemeenteCode`: De viercijferige (CBS) gemeentecode van de individuele (rand)gemeente waarvoor het request bedoeld is. Voorbeeld: `0363` of `0321`.
+
+    features:
+    - Standaard definitie van een Tenant in Wigo4it context
+    - Integraties met AspNetCore en NServiceBus
+    - Werkende code samples
+
+legal:
+  license: EUPL-1.2
+  mainCopyrightOwner: Wigo4it
+
+intendedAudience:
+  countries:
+  - NL
+  scope:
+  - government
+
+localisation:
+  availableLanguages:
+  - nl
+  localisationReady: false
+
+maintenance:
+  type: internal
+  contacts:
+  - name: Kees Verhaar
+    email: Kees.Verhaar@wigo4it.nl
+  - name: Dominique van de Vorle
+    email: Dominique.van.de.Vorle@wigo4it.nl
