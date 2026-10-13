@@ -1,0 +1,30 @@
+name: Validate publiccode.yml
+
+on:
+  push:
+    branches:
+      - '**'
+    paths:
+      - 'publiccode.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'publiccode.yml'
+  workflow_dispatch:
+
+jobs:
+  validate-publiccode:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Validate publiccode.yml
+        run: npx @developer-overheid-nl/don-checker@latest validate --standard publiccode --input ./publiccode.yml
